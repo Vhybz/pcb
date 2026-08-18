@@ -154,13 +154,13 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<Inspection> runDetection(String imagePath) async {
+  Future<Inspection> runDetection(String imagePath, {Uint8List? bytes}) async {
     _isAnalyzing = true;
     notifyListeners();
     
     try {
       // 1. Local/Remote AI Inference
-      final defects = await detectionService.detect(imagePath);
+      final defects = await detectionService.detect(imagePath, bytes: bytes);
       
       // 2. Prepare Inspection Model
       final inspection = Inspection(
@@ -173,10 +173,14 @@ class AppState extends ChangeNotifier {
 
       // 3. Upload and Save to Supabase (Persistence)
       try {
-        await supabaseService.saveInspection(inspection, imagePath);
+        if (bytes != null) {
+          // Use provided bytes for upload to save a read
+          await supabaseService.saveInspectionWithBytes(inspection, bytes);
+        } else {
+          await supabaseService.saveInspection(inspection, imagePath);
+        }
       } catch (e) {
         debugPrint('Supabase Upload Failed: $e');
-        // We still return the inspection result even if upload fails
       }
       
       // 4. Update local state

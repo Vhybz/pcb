@@ -130,8 +130,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
             try {
               final XFile? image = await picker.pickImage(source: ImageSource.gallery);
               if (image != null) {
+                final bytes = await image.readAsBytes();
                 if (!mounted) return;
-                context.push('/analysis', extra: image.path);
+                context.push('/analysis', extra: {
+                  'path': image.path,
+                  'bytes': bytes,
+                });
               }
             } catch (e) {
               debugPrint('Error picking image: $e');

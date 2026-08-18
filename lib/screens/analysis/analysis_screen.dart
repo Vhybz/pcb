@@ -6,7 +6,8 @@ import '../../services/app_state.dart';
 
 class AnalysisScreen extends StatefulWidget {
   final String? imagePath;
-  const AnalysisScreen({super.key, this.imagePath});
+  final Uint8List? imageBytes;
+  const AnalysisScreen({super.key, this.imagePath, this.imageBytes});
 
   @override
   State<AnalysisScreen> createState() => _AnalysisScreenState();
@@ -47,7 +48,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> with SingleTickerProvid
     final path = widget.imagePath ?? "assets/images/img_1.png";
     
     // Step 1: Inference & Persistence
-    await appState.runDetection(path);
+    await appState.runDetection(path, bytes: widget.imageBytes);
 
     if (mounted) {
       setState(() {

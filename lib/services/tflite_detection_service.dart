@@ -27,12 +27,14 @@ class TfliteDetectionService implements DetectionService {
   }
 
   @override
-  Future<List<Defect>> detect(String imagePath) async {
+  Future<List<Defect>> detect(String imagePath, {Uint8List? bytes}) async {
     await _loadModel();
     await _loadLabels();
 
     Uint8List imageBytes;
-    if (imagePath.startsWith('assets/')) {
+    if (bytes != null) {
+      imageBytes = bytes;
+    } else if (imagePath.startsWith('assets/')) {
       final byteData = await rootBundle.load(imagePath);
       imageBytes = byteData.buffer.asUint8List();
     } else {

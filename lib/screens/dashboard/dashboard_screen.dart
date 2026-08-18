@@ -250,7 +250,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
             try {
               final XFile? image = await picker.pickImage(source: ImageSource.gallery);
               if (image != null && context.mounted) {
-                context.push('/analysis', extra: image.path);
+                final bytes = await image.readAsBytes();
+                if (context.mounted) {
+                  context.push('/analysis', extra: {
+                    'path': image.path,
+                    'bytes': bytes,
+                  });
+                }
               }
             } catch (e) {
               debugPrint('Error picking image: $e');

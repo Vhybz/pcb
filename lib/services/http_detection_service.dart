@@ -13,31 +13,36 @@ class HttpDetectionService implements DetectionService {
   HttpDetectionService({required this.apiUrl});
 
   @override
-  Future<List<Defect>> detect(String imagePath) async {
+  Future<List<Defect>> detect(String imagePath, {Uint8List? bytes}) async {
     try {
       var request = http.MultipartRequest('POST', Uri.parse('$apiUrl/detect'));
       
-      Uint8List bytes;
-      if (imagePath.startsWith('assets/')) {
+      Uint8List imageBytes;
+      if (bytes != null) {
+        imageBytes = bytes;
+      } else if (imagePath.startsWith('assets/')) {
         final byteData = await rootBundle.load(imagePath);
-        bytes = byteData.buffer.asUint8List();
+        imageBytes = byteData.buffer.asUint8List();
       } else {
         // Use XFile to read bytes directly (works for blob URLs on web)
-        bytes = await XFile(imagePath).readAsBytes();
+        imageBytes = await XFile(imagePath).readAsBytes();
       }
 
       request.files.add(http.MultipartFile.fromBytes(
         'file', 
-        bytes,
+        imageBytes,
         filename: 'image.jpg',
       ));
       
+      debugPrint('Connecting to Render API: $apiUrl/detect');
       final streamedResponse = await request.send().timeout(const Duration(seconds: 40));
       
       if (streamedResponse.statusCode == 200) {
+        debugPrint('Render API: Success response received');
         final response = await http.Response.fromStream(streamedResponse);
         final data = json.decode(response.body);
         final List detections = data['detections'];
+        debugPrint('Render API: Detected ${detections.length} items');
         
         return detections.map((d) {
           final bbox = d['bbox'];

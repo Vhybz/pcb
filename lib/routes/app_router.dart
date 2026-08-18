@@ -112,6 +112,13 @@ class AppRouter {
           path: '/analysis',
           parentNavigatorKey: _rootNavigatorKey,
           builder: (context, state) {
+            if (state.extra is Map<String, dynamic>) {
+              final extra = state.extra as Map<String, dynamic>;
+              return AnalysisScreen(
+                imagePath: extra['path'] as String?,
+                imageBytes: extra['bytes'] as Uint8List?,
+              );
+            }
             final imagePath = state.extra as String?;
             return AnalysisScreen(imagePath: imagePath);
           },

@@ -113,6 +113,12 @@ class SupabaseService {
       bytes = await XFile(imagePath).readAsBytes();
     }
 
+    await saveInspectionWithBytes(inspection, bytes);
+  }
+
+  Future<void> saveInspectionWithBytes(Inspection inspection, Uint8List bytes) async {
+    if (currentUser == null) return;
+
     // 2. Upload Image
     final fileName = '${currentUser!.id}_${DateTime.now().millisecondsSinceEpoch}.jpg';
     final storagePath = 'pcb_images/$fileName';
