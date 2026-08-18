@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:camera/camera.dart';
 import '../models/defect.dart';
 import 'detection_service.dart';
