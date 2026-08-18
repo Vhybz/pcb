@@ -90,6 +90,10 @@ class AppState extends ChangeNotifier {
       notifyListeners();
     } catch (e) {
       debugPrint('Error fetching profile: $e');
+      if (e.toString().contains('JWT') || e.toString().contains('401')) {
+        // If the token is invalid (e.g. clock desync), force a logout
+        await supabaseService.signOut();
+      }
     }
   }
 
