@@ -209,8 +209,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
                 const SizedBox(height: 28),
                 FilledButton.icon(
-                  onPressed: () => context.push('/scanner'),
-                  icon: const Icon(Icons.camera_rounded, size: 18),
+                  onPressed: () => _showInspectionOptions(context),
+                  icon: const Icon(Icons.analytics_outlined, size: 18),
                   label: const Text('Start Inspection'),
                   style: FilledButton.styleFrom(
                     backgroundColor: Colors.white,
@@ -222,6 +222,138 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  void _showInspectionOptions(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: colorScheme.surface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: colorScheme.outlineVariant,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'Choose Inspection Mode',
+              style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Select how you want to analyze the board',
+              style: theme.textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant),
+            ),
+            const SizedBox(height: 32),
+            _buildModeOption(
+              context,
+              icon: Icons.now_widgets_rounded,
+              title: 'Real-time Scanner',
+              subtitle: 'Use live camera feed with AI overlay',
+              color: Colors.blue,
+              onTap: () {
+                context.pop();
+                context.push('/scanner');
+              },
+            ),
+            const SizedBox(height: 16),
+            _buildModeOption(
+              context,
+              icon: Icons.cloud_upload_rounded,
+              title: 'Upload Image',
+              subtitle: 'Select a photo from your gallery',
+              color: Colors.purple,
+              onTap: () async {
+                context.pop();
+                final ImagePicker picker = ImagePicker();
+                try {
+                  final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+                  if (image != null && context.mounted) {
+                    final bytes = await image.readAsBytes();
+                    if (context.mounted) {
+                      context.push('/analysis', extra: {
+                        'path': image.path,
+                        'bytes': bytes,
+                      });
+                    }
+                  }
+                } catch (e) {
+                  debugPrint('Error picking image: $e');
+                }
+              },
+            ),
+            const SizedBox(height: 24),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildModeOption(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(24),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          border: Border.all(color: colorScheme.outline.withValues(alpha: 0.1)),
+          borderRadius: BorderRadius.circular(24),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Icon(icon, color: color, size: 28),
+            ),
+            const SizedBox(width: 20),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    subtitle,
+                    style: theme.textTheme.labelMedium?.copyWith(color: colorScheme.onSurfaceVariant),
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.arrow_forward_ios_rounded, size: 16, color: colorScheme.outline),
+          ],
+        ),
       ),
     );
   }

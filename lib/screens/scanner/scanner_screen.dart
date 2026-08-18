@@ -30,6 +30,7 @@ class _ScannerScreenState extends State<ScannerScreen> with TickerProviderStateM
   late AnimationController _pulseController;
 
   bool _isDetecting = false;
+  bool isLiveDetectionEnabled = true;
   DateTime _lastDetectionTime = DateTime.now();
   
   @override
@@ -106,7 +107,7 @@ class _ScannerScreenState extends State<ScannerScreen> with TickerProviderStateM
   }
 
   void _processCameraImage(CameraImage image) async {
-    if (_isDetecting) return;
+    if (!isLiveDetectionEnabled || _isDetecting) return;
     if (DateTime.now().difference(_lastDetectionTime).inMilliseconds < 300) return;
 
     _isDetecting = true;
@@ -300,7 +301,7 @@ class _ScannerScreenState extends State<ScannerScreen> with TickerProviderStateM
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const _HUDLine(label: "STATUS", value: "REALTIME_ACTIVE", color: Colors.greenAccent),
+            _HUDLine(label: "STATUS", value: isLiveDetectionEnabled ? "REALTIME_ACTIVE" : "STANDBY", color: isLiveDetectionEnabled ? Colors.greenAccent : Colors.orangeAccent),
             const _HUDLine(label: "AI_VER", value: "YOLO_V8_PCB", color: Colors.blueAccent),
             _HUDLine(label: "CAMERA", value: camValue, color: Colors.blueAccent),
             Consumer<AppState>(
@@ -496,7 +497,15 @@ class _ScannerScreenState extends State<ScannerScreen> with TickerProviderStateM
           children: [
             _buildSecondaryAction(Icons.photo_library_rounded, 'GALLERY', onTap: _pickFromGallery),
             _buildShutterButton(),
-            _buildSecondaryAction(Icons.tune_rounded, 'TUNE', onTap: () {}),
+            _buildSecondaryAction(
+              isLiveDetectionEnabled ? Icons.visibility_rounded : Icons.visibility_off_rounded,
+              'AI_LIVE',
+              onTap: () {
+                setState(() => isLiveDetectionEnabled = !isLiveDetectionEnabled);
+                HapticFeedback.lightImpact();
+              },
+              active: isLiveDetectionEnabled,
+            ),
           ],
         ),
       ),
@@ -518,11 +527,11 @@ class _ScannerScreenState extends State<ScannerScreen> with TickerProviderStateM
     );
   }
 
-  Widget _buildSecondaryAction(IconData icon, String label, {required VoidCallback onTap}) {
+  Widget _buildSecondaryAction(IconData icon, String label, {required VoidCallback onTap, bool active = false}) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _buildCircularButton(icon, onTap),
+        _buildCircularButton(icon, onTap, active: active),
         const SizedBox(height: 8),
         Text(label, style: const TextStyle(color: Colors.white54, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 1)),
       ],
