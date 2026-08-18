@@ -26,21 +26,12 @@ Future<void> main() async {
     publishableKey: 'sb_publishable_gZXnUk2d6jfzQagR67t5FQ_Qs5ckXuG',
   );
 
-  // Initialize cameras
-  List<CameraDescription> cameras = [];
-  try {
-    cameras = await availableCameras();
-  } catch (e) {
-    debugPrint('Error fetching cameras: $e');
-  }
-
   // Choose service based on platform via factory
   final DetectionService detectionService = DetectionFactory.create();
 
   final appState = AppState(
     detectionService: detectionService,
   );
-  appState.setCameras(cameras);
 
   runApp(
     ChangeNotifierProvider.value(

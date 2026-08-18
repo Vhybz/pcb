@@ -53,6 +53,17 @@ class AppState extends ChangeNotifier {
   }
   
   List<CameraDescription> get cameras => _cameras;
+
+  Future<void> ensureCamerasInitialized() async {
+    if (_cameras.isNotEmpty) return;
+    try {
+      _cameras = await availableCameras();
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Error fetching cameras: $e');
+    }
+  }
+
   List<Inspection> get history => _history;
   Inspection? get lastInspection => _lastInspection;
   bool get isAnalyzing => _isAnalyzing;

@@ -49,11 +49,17 @@ class _ScannerScreenState extends State<ScannerScreen> with TickerProviderStateM
   }
 
   Future<void> _initializeCamera() async {
+    final appState = context.read<AppState>();
+    
+    // 1. Ensure camera list is fetched (no prompt yet on most platforms)
+    await appState.ensureCamerasInitialized();
+    
+    // 2. Request explicit permission (This shows the OS prompt)
     final status = await Permission.camera.request();
     if (!mounted) return;
     if (status != PermissionStatus.granted) return;
 
-    final cameras = context.read<AppState>().cameras;
+    final cameras = appState.cameras;
     if (cameras.isEmpty) return;
 
     _controller = CameraController(
