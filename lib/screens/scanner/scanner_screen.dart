@@ -565,16 +565,24 @@ class _HUDLine extends StatelessWidget {
 class TechnicalGridPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
+    if (size.width.isInfinite || size.height.isInfinite) return;
+
     final paint = Paint()
       ..color = Colors.blueAccent.withValues(alpha: 0.3)
       ..strokeWidth = 0.5;
 
     const spacing = 40.0;
-    for (double i = 0; i < size.width; i += spacing) {
-      canvas.drawLine(Offset(i, 0), Offset(i, size.height), paint);
+    // Safety limit to prevent browser hang
+    final int horizontalLines = (size.width / spacing).floor().clamp(0, 100);
+    final int verticalLines = (size.height / spacing).floor().clamp(0, 100);
+
+    for (int i = 0; i <= horizontalLines; i++) {
+      double x = i * spacing;
+      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
     }
-    for (double i = 0; i < size.height; i += spacing) {
-      canvas.drawLine(Offset(0, i), Offset(size.width, i), paint);
+    for (int i = 0; i <= verticalLines; i++) {
+      double y = i * spacing;
+      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
     }
   }
 

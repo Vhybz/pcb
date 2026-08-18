@@ -122,22 +122,21 @@ class _AnalysisScreenState extends State<AnalysisScreen> with SingleTickerProvid
   }
 
   Widget _buildScanningGrid() {
-    return Opacity(
-      opacity: 0.1,
-      child: Container(
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: const AssetImage('assets/images/circuit_pattern.png'), // Fallback to empty if not found
-            repeat: ImageRepeat.repeat,
-            onError: (e, s) {},
+    return IgnorePointer(
+      child: Opacity(
+        opacity: 0.1,
+        child: Container(
+          width: double.infinity,
+          height: double.infinity,
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: const AssetImage('assets/images/circuit_pattern.png'),
+              repeat: ImageRepeat.repeat,
+              onError: (e, s) {},
+            ),
           ),
-        ),
-        child: GridView.builder(
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: 100, // Bound the items to prevent infinite layout
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 20),
-          itemBuilder: (context, index) => Container(
-            decoration: BoxDecoration(border: Border.all(color: Colors.blue.withValues(alpha: 0.1), width: 0.5)),
+          child: CustomPaint(
+            painter: _TechnicalGridPainter(),
           ),
         ),
       ),
@@ -302,4 +301,31 @@ class _AnalysisScreenState extends State<AnalysisScreen> with SingleTickerProvid
       ),
     );
   }
+}
+
+class _TechnicalGridPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (size.width.isInfinite || size.height.isInfinite) return;
+
+    final paint = Paint()
+      ..color = Colors.blue.withValues(alpha: 0.1)
+      ..strokeWidth = 0.5;
+
+    const spacing = 40.0;
+    final int horizontalLines = (size.width / spacing).floor().clamp(0, 100);
+    final int verticalLines = (size.height / spacing).floor().clamp(0, 100);
+
+    for (int i = 0; i <= horizontalLines; i++) {
+      double x = i * spacing;
+      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
+    }
+    for (int i = 0; i <= verticalLines; i++) {
+      double y = i * spacing;
+      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => false;
 }
