@@ -103,7 +103,7 @@ class AboutScreen extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
       decoration: BoxDecoration(
-        color: colorScheme.primaryContainer.withOpacity(0.2),
+        color: colorScheme.primaryContainer.withValues(alpha: 0.2),
         borderRadius: const BorderRadius.only(
           bottomLeft: Radius.circular(40),
           bottomRight: Radius.circular(40),
@@ -122,7 +122,7 @@ class AboutScreen extends StatelessWidget {
               ),
               boxShadow: [
                 BoxShadow(
-                  color: colorScheme.primary.withOpacity(0.3),
+                  color: colorScheme.primary.withValues(alpha: 0.3),
                   blurRadius: 20,
                   offset: const Offset(0, 10),
                 ),
@@ -205,7 +205,7 @@ class AboutScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: colorScheme.outline.withOpacity(0.1)),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.1)),
       ),
       child: Row(
         children: [
@@ -237,9 +237,9 @@ class AboutScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: colorScheme.surfaceVariant.withOpacity(0.3),
+        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: colorScheme.outline.withOpacity(0.05)),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.05)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -289,10 +289,10 @@ class AboutScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isSupervisor ? colorScheme.primaryContainer.withOpacity(0.1) : colorScheme.surface,
+        color: isSupervisor ? colorScheme.primaryContainer.withValues(alpha: 0.1) : colorScheme.surface,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: isSupervisor ? colorScheme.primary.withOpacity(0.2) : colorScheme.outline.withOpacity(0.1),
+          color: isSupervisor ? colorScheme.primary.withValues(alpha: 0.2) : colorScheme.outline.withValues(alpha: 0.1),
         ),
       ),
       child: Row(
@@ -304,12 +304,12 @@ class AboutScreen extends StatelessWidget {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
-                color: isSupervisor ? colorScheme.primary : colorScheme.primary.withOpacity(0.2),
+                color: isSupervisor ? colorScheme.primary : colorScheme.primary.withValues(alpha: 0.2),
                 width: 2,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: (isSupervisor ? colorScheme.primary : Colors.black).withOpacity(0.1),
+                  color: (isSupervisor ? colorScheme.primary : Colors.black).withValues(alpha: 0.1),
                   blurRadius: 12,
                   offset: const Offset(0, 4),
                 ),
@@ -321,7 +321,7 @@ class AboutScreen extends StatelessWidget {
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
                   return Container(
-                    color: colorScheme.surfaceVariant,
+                    color: colorScheme.surfaceContainerHighest,
                     child: Icon(
                       Icons.person_rounded,
                       color: colorScheme.onSurfaceVariant,
@@ -392,7 +392,7 @@ class AboutScreen extends StatelessWidget {
           Text(
             '© 2026 Sunyani Technical University',
             style: theme.textTheme.labelSmall?.copyWith(
-              color: colorScheme.onSurfaceVariant.withOpacity(0.8),
+              color: colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -400,7 +400,7 @@ class AboutScreen extends StatelessWidget {
           Text(
             'Faculty of Engineering • Electrical Dept.',
             style: theme.textTheme.labelSmall?.copyWith(
-              color: colorScheme.onSurfaceVariant.withOpacity(0.5),
+              color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
             ),
           ),
           const SizedBox(height: 32),

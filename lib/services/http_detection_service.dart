@@ -1,7 +1,8 @@
 import 'dart:convert';
+import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter/services.dart';
 import '../models/defect.dart';
 import 'detection_service.dart';
 
@@ -24,9 +25,6 @@ class HttpDetectionService implements DetectionService {
           filename: 'image.jpg',
         ));
       } else if (kIsWeb) {
-        // For web, if it's a blob/path from XFile
-        // We'll need to fetch the bytes. 
-        // Note: In a real app, passing bytes directly to the service is cleaner.
         final response = await http.get(Uri.parse(imagePath));
         request.files.add(http.MultipartFile.fromBytes(
           'file',
@@ -61,8 +59,14 @@ class HttpDetectionService implements DetectionService {
         }).toList();
       }
     } catch (e) {
-      print('HTTP Detection Error: $e');
+      debugPrint('HTTP Detection Error: $e');
     }
+    return [];
+  }
+
+  @override
+  Future<List<Defect>> detectStream(CameraImage image) async {
+    // For now, HTTP real-time is too heavy for every frame.
     return [];
   }
 

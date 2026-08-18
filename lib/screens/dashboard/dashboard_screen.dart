@@ -15,6 +15,16 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final appState = context.read<AppState>();
+      appState.fetchProfile();
+      appState.fetchHistory();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final appState = context.watch<AppState>();
     final stats = appState.stats;
@@ -38,12 +48,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
             title: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'PCB Inspector AI',
-                  style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900, letterSpacing: -0.5),
+                Consumer<AppState>(
+                  builder: (context, appState, _) => Text(
+                    'Welcome, ${appState.userProfile?['username'] ?? 'User'}',
+                    style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900, letterSpacing: -0.5),
+                  ),
                 ),
                 Text(
-                  'Sunyani Technical University',
+                  'PCB Inspector AI • Live',
                   style: theme.textTheme.labelSmall?.copyWith(color: colorScheme.primary, fontWeight: FontWeight.bold, letterSpacing: 1),
                 ),
               ],
@@ -95,9 +107,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   onTap: () => context.push('/result'),
                 )),
                 const SizedBox(height: 40),
-                
-                _buildInstitutionalFooter(theme, colorScheme),
-                const SizedBox(height: 40),
               ]),
             ),
           ),
@@ -113,7 +122,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         padding: const EdgeInsets.all(2),
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          border: Border.all(color: colorScheme.primary.withOpacity(0.2), width: 1.5),
+          border: Border.all(color: colorScheme.primary.withValues(alpha: 0.2), width: 1.5),
         ),
         child: CircleAvatar(
           radius: 18,
@@ -155,14 +164,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
       width: double.infinity,
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [colorScheme.primary, colorScheme.primary.withOpacity(0.8)],
+          colors: [colorScheme.primary, colorScheme.primary.withValues(alpha: 0.8)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(32),
         boxShadow: [
           BoxShadow(
-            color: colorScheme.primary.withOpacity(0.2),
+            color: colorScheme.primary.withValues(alpha: 0.2),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -190,7 +199,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               children: [
                 Text(
                   'READY TO SCAN',
-                  style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 2),
+                  style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 2),
                 ),
                 const SizedBox(height: 12),
                 Text(
@@ -221,7 +230,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       title,
       style: theme.textTheme.titleSmall?.copyWith(
         fontWeight: FontWeight.w800,
-        color: theme.colorScheme.onSurface.withOpacity(0.8),
+        color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
         letterSpacing: 0.5,
       ),
     );
@@ -248,9 +257,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
+              color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: colorScheme.outline.withOpacity(0.05)),
+              border: Border.all(color: colorScheme.outline.withValues(alpha: 0.05)),
             ),
             child: Icon(icon, color: colorScheme.primary, size: 24),
           ),
@@ -295,7 +304,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       decoration: BoxDecoration(
         color: colorScheme.surface,
         borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: colorScheme.outline.withOpacity(0.1)),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.1)),
       ),
       child: Column(
         children: [
@@ -306,7 +315,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: AppColors.successContainer.withOpacity(0.5),
+                  color: AppColors.successContainer.withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Text(
@@ -326,35 +335,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 width: 20,
                 height: heights[index],
                 decoration: BoxDecoration(
-                  color: index == 6 ? colorScheme.primary : colorScheme.primary.withOpacity(0.15),
+                  color: index == 6 ? colorScheme.primary : colorScheme.primary.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(6),
                 ),
               );
             }),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildInstitutionalFooter(ThemeData theme, ColorScheme colorScheme) {
-    return Center(
-      child: Opacity(
-        opacity: 0.5,
-        child: Column(
-          children: [
-            const Icon(Icons.school_rounded, size: 24),
-            const SizedBox(height: 8),
-            Text(
-              'FACULTY OF ENGINEERING',
-              style: theme.textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w900, letterSpacing: 2),
-            ),
-            Text(
-              'Electrical and Electronic Engineering',
-              style: theme.textTheme.labelSmall?.copyWith(fontSize: 10),
-            ),
-          ],
-        ),
       ),
     );
   }

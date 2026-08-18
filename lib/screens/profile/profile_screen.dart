@@ -1,10 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../services/app_state.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
+
+  Future<void> _pickImage(BuildContext context) async {
+    final picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+    
+    if (image != null) {
+      if (!context.mounted) return;
+      final appState = context.read<AppState>();
+      // On web we need bytes, on mobile we can use File
+      final bytes = await image.readAsBytes();
+      await appState.updateProfilePicture(bytes);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -12,6 +26,7 @@ class ProfileScreen extends StatelessWidget {
     final colorScheme = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
     final appState = context.watch<AppState>();
+    final profile = appState.userProfile;
 
     return Scaffold(
       body: CustomScrollView(
@@ -38,15 +53,16 @@ class ProfileScreen extends StatelessWidget {
             padding: const EdgeInsets.all(20),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                _buildHeroProfile(context, colorScheme),
+                _buildHeroProfile(context, colorScheme, profile),
                 const SizedBox(height: 32),
                 
                 _buildSectionHeader(context, 'Professional Identity'),
                 const SizedBox(height: 16),
                 _buildInfoGroup(colorScheme, [
-                  _buildInfoRow(colorScheme, 'Employee ID', 'STU-EEE-2026-08', Icons.badge_outlined),
-                  _buildInfoRow(colorScheme, 'Designation', 'Senior Industrial Inspector', Icons.work_outline_rounded),
-                  _buildInfoRow(colorScheme, 'Department', 'Electrical & Electronics', Icons.electrical_services_rounded),
+                  _buildInfoRow(colorScheme, 'Username', profile?['username'] ?? 'N/A', Icons.badge_outlined),
+                  _buildInfoRow(colorScheme, 'Profession', profile?['profession'] ?? 'N/A', Icons.work_outline_rounded),
+                  _buildInfoRow(colorScheme, 'Phone', profile?['phone'] ?? 'N/A', Icons.phone_outlined),
+                  _buildInfoRow(colorScheme, 'Email', profile?['email'] ?? 'N/A', Icons.email_outlined),
                 ]),
                 
                 const SizedBox(height: 32),
@@ -62,7 +78,7 @@ class ProfileScreen extends StatelessWidget {
                 _buildActionCard(colorScheme, 'Notification Preferences', 'Manage alert levels', Icons.notifications_active_outlined),
                 
                 const SizedBox(height: 40),
-                _buildLogoutButton(colorScheme),
+                _buildLogoutButton(context, colorScheme),
                 const SizedBox(height: 40),
               ]),
             ),
@@ -72,33 +88,61 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildHeroProfile(BuildContext context, ColorScheme colorScheme) {
+  Widget _buildHeroProfile(BuildContext context, ColorScheme colorScheme, Map<String, dynamic>? profile) {
+    final avatarUrl = profile?['avatar_url'];
+    
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(32),
       decoration: BoxDecoration(
-        color: colorScheme.primaryContainer.withOpacity(0.3),
+        color: colorScheme.primaryContainer.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(32),
-        border: Border.all(color: colorScheme.primary.withOpacity(0.1)),
+        border: Border.all(color: colorScheme.primary.withValues(alpha: 0.1)),
       ),
       child: Column(
         children: [
-          Container(
-            padding: const EdgeInsets.all(4),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: colorScheme.primary, width: 3),
-            ),
-            child: CircleAvatar(
-              radius: 50,
-              backgroundColor: colorScheme.primary,
-              child: const Text('JD', style: TextStyle(color: Colors.white, fontSize: 36, fontWeight: FontWeight.w900)),
-            ),
+          Stack(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: colorScheme.primary, width: 3),
+                ),
+                child: CircleAvatar(
+                  radius: 50,
+                  backgroundColor: colorScheme.primary,
+                  backgroundImage: avatarUrl != null ? NetworkImage(avatarUrl) : null,
+                  child: avatarUrl == null 
+                    ? Text(
+                        (profile?['username'] ?? 'U').substring(0, 1).toUpperCase(), 
+                        style: const TextStyle(color: Colors.white, fontSize: 36, fontWeight: FontWeight.w900)
+                      ) 
+                    : null,
+                ),
+              ),
+              Positioned(
+                bottom: 0,
+                right: 0,
+                child: GestureDetector(
+                  onTap: () => _pickImage(context),
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: colorScheme.primary,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: colorScheme.surface, width: 2),
+                    ),
+                    child: const Icon(Icons.edit_rounded, color: Colors.white, size: 16),
+                  ),
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 24),
-          const Text(
-            'John Doe',
-            style: TextStyle(fontSize: 26, fontWeight: FontWeight.w900, letterSpacing: -0.5),
+          Text(
+            profile?['username'] ?? 'User',
+            style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w900, letterSpacing: -0.5),
           ),
           const SizedBox(height: 4),
           Container(
@@ -107,9 +151,9 @@ class ProfileScreen extends StatelessWidget {
               color: colorScheme.primary,
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Text(
-              'ADMINISTRATOR',
-              style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1),
+            child: Text(
+              (profile?['profession'] ?? 'INSPECTOR').toUpperCase(),
+              style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1),
             ),
           ),
         ],
@@ -132,7 +176,7 @@ class ProfileScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: colorScheme.surface,
         borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: colorScheme.outline.withOpacity(0.1)),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.1)),
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(children: children),
@@ -154,7 +198,7 @@ class ProfileScreen extends StatelessWidget {
       children: [
         _buildStatItem(colorScheme, 'TOTAL SCANS', stats['total'].toString()),
         const SizedBox(width: 12),
-        _buildStatItem(colorScheme, 'ACCURACY', '98.2%'),
+        _buildStatItem(colorScheme, 'DEFECT RATE', '${stats['defectRate']}%'),
       ],
     );
   }
@@ -166,7 +210,7 @@ class ProfileScreen extends StatelessWidget {
         decoration: BoxDecoration(
           color: colorScheme.surface,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: colorScheme.outline.withOpacity(0.1)),
+          border: Border.all(color: colorScheme.outline.withValues(alpha: 0.1)),
         ),
         child: Column(
           children: [
@@ -183,12 +227,12 @@ class ProfileScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: colorScheme.surface,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: colorScheme.outline.withOpacity(0.1)),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.1)),
       ),
       child: ListTile(
         leading: Container(
           padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(color: colorScheme.primary.withOpacity(0.1), borderRadius: BorderRadius.circular(12)),
+          decoration: BoxDecoration(color: colorScheme.primary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
           child: Icon(icon, color: colorScheme.primary, size: 22),
         ),
         title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
@@ -198,18 +242,23 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildLogoutButton(ColorScheme colorScheme) {
+  Widget _buildLogoutButton(BuildContext context, ColorScheme colorScheme) {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: colorScheme.error.withOpacity(0.05),
+        color: colorScheme.error.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: colorScheme.error.withOpacity(0.1)),
+        border: Border.all(color: colorScheme.error.withValues(alpha: 0.1)),
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: () {},
+          onTap: () async {
+            await context.read<AppState>().supabaseService.signOut();
+            if (context.mounted) {
+              context.go('/signin');
+            }
+          },
           borderRadius: BorderRadius.circular(20),
           child: const Padding(
             padding: EdgeInsets.all(18),

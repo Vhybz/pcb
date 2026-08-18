@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -7,6 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../../services/app_state.dart';
+import '../../models/defect.dart';
 
 class ScannerScreen extends StatefulWidget {
   const ScannerScreen({super.key});
@@ -25,8 +27,9 @@ class _ScannerScreenState extends State<ScannerScreen> with TickerProviderStateM
   
   late AnimationController _scannerController;
   late AnimationController _pulseController;
-  
-  // No longer using mock coord/temp or simulated detection boxes
+
+  bool _isDetecting = false;
+  DateTime _lastDetectionTime = DateTime.now();
   
   @override
   void initState() {
@@ -53,9 +56,9 @@ class _ScannerScreenState extends State<ScannerScreen> with TickerProviderStateM
 
     _controller = CameraController(
       cameras[0],
-      ResolutionPreset.max,
+      ResolutionPreset.medium,
       enableAudio: false,
-      imageFormatGroup: ImageFormatGroup.jpeg,
+      imageFormatGroup: kIsWeb ? ImageFormatGroup.jpeg : ImageFormatGroup.yuv420,
     );
 
     try {
@@ -63,18 +66,44 @@ class _ScannerScreenState extends State<ScannerScreen> with TickerProviderStateM
       _minZoom = await _controller!.getMinZoomLevel();
       _maxZoom = await _controller!.getMaxZoomLevel();
       
-      if (mounted) {
-        setState(() {
-          _isCameraInitialized = true;
-        });
+      if (!mounted) return;
+      setState(() {
+        _isCameraInitialized = true;
+      });
+
+      if (!kIsWeb) {
+        _controller!.startImageStream(_processCameraImage);
       }
     } catch (e) {
       debugPrint('Camera error: $e');
     }
   }
 
+  void _processCameraImage(CameraImage image) async {
+    if (_isDetecting) return;
+    if (DateTime.now().difference(_lastDetectionTime).inMilliseconds < 300) return;
+
+    _isDetecting = true;
+    _lastDetectionTime = DateTime.now();
+
+    try {
+      final appState = context.read<AppState>();
+      final defects = await appState.detectionService.detectStream(image);
+      if (mounted) {
+        appState.updateLiveDefects(defects);
+      }
+    } catch (e) {
+      debugPrint('Detection stream error: $e');
+    } finally {
+      _isDetecting = false;
+    }
+  }
+
   @override
   void dispose() {
+    if (_controller?.value.isStreamingImages ?? false) {
+      _controller?.stopImageStream();
+    }
     _controller?.dispose();
     _scannerController.dispose();
     _pulseController.dispose();
@@ -95,21 +124,25 @@ class _ScannerScreenState extends State<ScannerScreen> with TickerProviderStateM
 
   Future<void> _takePicture() async {
     HapticFeedback.heavyImpact();
+    
+    if (_controller?.value.isStreamingImages ?? false) {
+      await _controller?.stopImageStream();
+    }
+
     if (_controller == null || !_isCameraInitialized) {
       context.push('/analysis');
       return;
     }
 
     try {
-      // Show brief capture feedback
       setState(() => _isCameraInitialized = false);
       await Future.delayed(const Duration(milliseconds: 100));
       
       final XFile picture = await _controller!.takePicture();
-      if (mounted) {
-        context.push('/analysis', extra: picture.path); 
-      }
+      if (!mounted) return;
+      context.push('/analysis', extra: picture.path); 
     } catch (e) {
+      if (!mounted) return;
       context.push('/analysis');
     }
   }
@@ -118,7 +151,8 @@ class _ScannerScreenState extends State<ScannerScreen> with TickerProviderStateM
     final ImagePicker picker = ImagePicker();
     try {
       final XFile? image = await picker.pickImage(source: ImageSource.gallery);
-      if (image != null && mounted) {
+      if (image != null) {
+        if (!mounted) return;
         context.push('/analysis', extra: image.path);
       }
     } catch (e) {
@@ -136,19 +170,11 @@ class _ScannerScreenState extends State<ScannerScreen> with TickerProviderStateM
       backgroundColor: Colors.black,
       body: Stack(
         children: [
-          // 1. Full-screen Camera Feed
           _buildCameraView(),
-          
-          // 2. Technical Matrix/Grid Overlay
+          _buildLiveDetections(),
           _buildGridOverlay(),
-
-          // 3. Moving Scanline
           _buildScanLine(frameHeight, frameWidth),
-
-          // 4. HUD Data readouts
           _buildHUDOverlay(),
-          
-          // 5. Viewfinder with pulsing core
           Center(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -159,15 +185,27 @@ class _ScannerScreenState extends State<ScannerScreen> with TickerProviderStateM
               ],
             ),
           ),
-          
-          // 6. Zoom Controls
           _buildZoomSlider(),
-
-          // 7. Navigation & Actions
           _buildTopBar(),
           _buildBottomControls(),
         ],
       ),
+    );
+  }
+
+  Widget _buildLiveDetections() {
+    return Consumer<AppState>(
+      builder: (context, appState, child) {
+        if (appState.liveDefects.isEmpty) return const SizedBox.shrink();
+        
+        return CustomPaint(
+          size: Size.infinite,
+          painter: LiveBoundingBoxPainter(
+            defects: appState.liveDefects,
+            colorScheme: Theme.of(context).colorScheme,
+          ),
+        );
+      },
     );
   }
 
@@ -186,7 +224,7 @@ class _ScannerScreenState extends State<ScannerScreen> with TickerProviderStateM
                 child: LinearProgressIndicator(backgroundColor: Colors.white10, color: Colors.blueAccent),
               ),
               const SizedBox(height: 20),
-              Text('BOOTING SENSORS...', style: TextStyle(color: Colors.blue.withOpacity(0.5), fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 2)),
+              Text('BOOTING SENSORS...', style: TextStyle(color: Colors.blue.withValues(alpha: 0.5), fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 2)),
             ],
           ),
         ),
@@ -218,17 +256,24 @@ class _ScannerScreenState extends State<ScannerScreen> with TickerProviderStateM
   }
 
   Widget _buildHUDOverlay() {
-    return const SafeArea(
+    return SafeArea(
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 24, vertical: 80),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 80),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _HUDLine(label: "STATUS", value: "SCANNING", color: Colors.greenAccent),
-            _HUDLine(label: "AI_VER", value: "YOLO_V8_PCB", color: Colors.blueAccent),
-            Spacer(),
-            _HUDLine(label: "BUFFER", value: "READY", color: Colors.blueAccent),
-            _HUDLine(label: "ISO", value: "AUTO", color: Colors.blueAccent),
+            const _HUDLine(label: "STATUS", value: "REALTIME_ACTIVE", color: Colors.greenAccent),
+            const _HUDLine(label: "AI_VER", value: "YOLO_V8_PCB", color: Colors.blueAccent),
+            Consumer<AppState>(
+              builder: (context, appState, _) => _HUDLine(
+                label: "LIVE_FIND", 
+                value: appState.liveDefects.length.toString(), 
+                color: appState.liveDefects.isNotEmpty ? Colors.redAccent : Colors.blueAccent
+              ),
+            ),
+            const Spacer(),
+            const _HUDLine(label: "BUFFER", value: "STREAMING", color: Colors.blueAccent),
+            const _HUDLine(label: "ISO", value: "AUTO", color: Colors.blueAccent),
           ],
         ),
       ),
@@ -252,7 +297,7 @@ class _ScannerScreenState extends State<ScannerScreen> with TickerProviderStateM
                   child: Container(
                     height: 1.5,
                     decoration: BoxDecoration(
-                      boxShadow: [BoxShadow(color: Colors.blueAccent.withOpacity(0.5), blurRadius: 10, spreadRadius: 1)],
+                      boxShadow: [BoxShadow(color: Colors.blueAccent.withValues(alpha: 0.5), blurRadius: 10, spreadRadius: 1)],
                       color: Colors.blueAccent,
                     ),
                   ),
@@ -270,9 +315,9 @@ class _ScannerScreenState extends State<ScannerScreen> with TickerProviderStateM
       width: width,
       height: height,
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.1),
+        color: Colors.black.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.white.withOpacity(0.1), width: 0.5),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.1), width: 0.5),
       ),
       child: Stack(
         children: [
@@ -288,7 +333,7 @@ class _ScannerScreenState extends State<ScannerScreen> with TickerProviderStateM
                 height: 48,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  border: Border.all(color: Colors.blueAccent.withOpacity(0.4), width: 1),
+                  border: Border.all(color: Colors.blueAccent.withValues(alpha: 0.4), width: 1),
                 ),
                 child: const Icon(Icons.add, color: Colors.blueAccent, size: 24),
               ),
@@ -353,7 +398,7 @@ class _ScannerScreenState extends State<ScannerScreen> with TickerProviderStateM
                 activeTrackColor: Colors.blueAccent,
                 inactiveTrackColor: Colors.white24,
                 thumbColor: Colors.white,
-                overlayColor: Colors.blueAccent.withOpacity(0.2),
+                overlayColor: Colors.blueAccent.withValues(alpha: 0.2),
                 thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
               ),
               child: Slider(
@@ -418,7 +463,7 @@ class _ScannerScreenState extends State<ScannerScreen> with TickerProviderStateM
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: active ? Colors.blueAccent.withOpacity(0.4) : Colors.black38,
+          color: active ? Colors.blueAccent.withValues(alpha: 0.4) : Colors.black38,
           shape: BoxShape.circle,
           border: Border.all(color: Colors.white10),
         ),
@@ -472,7 +517,7 @@ class _HUDLine extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text("$label:", style: TextStyle(color: color.withOpacity(0.5), fontSize: 9, fontWeight: FontWeight.bold, fontFamily: 'monospace')),
+          Text("$label:", style: TextStyle(color: color.withValues(alpha: 0.5), fontSize: 9, fontWeight: FontWeight.bold, fontFamily: 'monospace')),
           const SizedBox(width: 8),
           Text(value, style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.bold, fontFamily: 'monospace')),
         ],
@@ -485,7 +530,7 @@ class TechnicalGridPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.blueAccent.withOpacity(0.3)
+      ..color = Colors.blueAccent.withValues(alpha: 0.3)
       ..strokeWidth = 0.5;
 
     const spacing = 40.0;
@@ -499,4 +544,50 @@ class TechnicalGridPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(CustomPainter oldDelegate) => false;
+}
+
+class LiveBoundingBoxPainter extends CustomPainter {
+  final List<Defect> defects;
+  final ColorScheme colorScheme;
+
+  LiveBoundingBoxPainter({required this.defects, required this.colorScheme});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.red
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.0;
+
+    final textPainter = TextPainter(
+      textDirection: TextDirection.ltr,
+    );
+
+    for (var defect in defects) {
+      final rect = Rect.fromLTWH(
+        defect.boundingBox.x * size.width,
+        defect.boundingBox.y * size.height,
+        defect.boundingBox.width * size.width,
+        defect.boundingBox.height * size.height,
+      );
+
+      canvas.drawRect(rect, paint);
+
+      final labelPaint = Paint()..color = Colors.red;
+      canvas.drawRect(
+        Rect.fromLTWH(rect.left, rect.top - 15, defect.className.length * 7.0, 15),
+        labelPaint,
+      );
+
+      textPainter.text = TextSpan(
+        text: defect.className.toUpperCase(),
+        style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+      );
+      textPainter.layout();
+      textPainter.paint(canvas, Offset(rect.left + 2, rect.top - 14));
+    }
+  }
+
+  @override
+  bool shouldRepaint(LiveBoundingBoxPainter oldDelegate) => true;
 }

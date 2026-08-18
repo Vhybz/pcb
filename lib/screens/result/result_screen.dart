@@ -1,9 +1,11 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../models/inspection.dart';
+import '../../models/defect.dart';
 import '../../services/app_state.dart';
 import '../../widgets/defect_list_tile.dart';
 
@@ -13,7 +15,15 @@ class ResultScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final appState = context.read<AppState>();
-    final inspection = appState.lastInspection ?? appState.history.first;
+    final inspection = appState.lastInspection ?? (appState.history.isNotEmpty ? appState.history.first : null);
+    
+    if (inspection == null) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('No Data')),
+        body: const Center(child: Text('No inspection data found.')),
+      );
+    }
+
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
@@ -51,7 +61,7 @@ class ResultScreen extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: Colors.black,
                         borderRadius: BorderRadius.circular(32),
-                        border: Border.all(color: colorScheme.outline.withOpacity(0.1)),
+                        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.1)),
                       ),
                       clipBehavior: Clip.antiAlias,
                       child: Stack(
@@ -102,7 +112,7 @@ class ResultScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(28),
                     boxShadow: [
                       BoxShadow(
-                        color: (isPassed ? AppColors.success : AppColors.error).withOpacity(0.1),
+                        color: (isPassed ? AppColors.success : AppColors.error).withValues(alpha: 0.1),
                         blurRadius: 20,
                         offset: const Offset(0, 10),
                       ),
@@ -129,7 +139,7 @@ class ResultScreen extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w900,
-                                color: (isPassed ? AppColors.success : AppColors.error).withOpacity(0.6),
+                                color: (isPassed ? AppColors.success : AppColors.error).withValues(alpha: 0.6),
                                 letterSpacing: 1.5,
                               ),
                             ),
@@ -184,7 +194,7 @@ class ResultScreen extends StatelessWidget {
                         style: OutlinedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 18),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                          side: BorderSide(color: colorScheme.outline.withOpacity(0.2)),
+                          side: BorderSide(color: colorScheme.outline.withValues(alpha: 0.2)),
                         ),
                       ),
                     ),
@@ -219,22 +229,51 @@ class ResultScreen extends StatelessWidget {
         width: double.infinity,
         height: 300,
         fit: BoxFit.contain,
+        errorBuilder: (context, error, stackTrace) => _buildErrorPlaceholder(),
       );
     }
+    
+    if (kIsWeb || imageUrl.startsWith('http')) {
+      return Image.network(
+        imageUrl,
+        width: double.infinity,
+        height: 300,
+        fit: BoxFit.contain,
+        errorBuilder: (context, error, stackTrace) => _buildErrorPlaceholder(),
+      );
+    }
+
     return Image.file(
       File(imageUrl),
       width: double.infinity,
       height: 300,
       fit: BoxFit.contain,
+      errorBuilder: (context, error, stackTrace) => _buildErrorPlaceholder(),
+    );
+  }
+
+  Widget _buildErrorPlaceholder() {
+    return Container(
+      width: double.infinity,
+      height: 300,
+      color: Colors.grey[900],
+      child: const Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.broken_image_rounded, color: Colors.white24, size: 48),
+          SizedBox(height: 12),
+          Text('Failed to load board image', style: TextStyle(color: Colors.white24, fontSize: 12)),
+        ],
+      ),
     );
   }
 }
 
 class _BoundingBoxWidget extends StatelessWidget {
-  final defect;
-  final colorScheme;
+  final Defect defect;
+  final ColorScheme colorScheme;
 
-  const _BoundingBoxWidget({required this.defect, required this.colorScheme});
+  const _BoundingBoxWidget({super.key, required this.defect, required this.colorScheme});
 
   @override
   Widget build(BuildContext context) {
@@ -246,7 +285,7 @@ class _BoundingBoxWidget extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         // Simple scaling assuming BoxFit.contain and 300 height
-        final double displayHeight = 300;
+        const double displayHeight = 300;
         final double displayWidth = constraints.maxWidth;
         
         // This is a simplification. In a real app, you'd calculate the actual image aspect ratio.
@@ -264,7 +303,7 @@ class _BoundingBoxWidget extends StatelessWidget {
             decoration: BoxDecoration(
               border: Border.all(color: Colors.red, width: 2),
               borderRadius: BorderRadius.circular(4),
-              color: Colors.red.withOpacity(0.1),
+              color: Colors.red.withValues(alpha: 0.1),
             ),
             child: Align(
               alignment: Alignment.topLeft,

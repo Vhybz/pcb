@@ -16,6 +16,8 @@ class _AnalysisScreenState extends State<AnalysisScreen> with SingleTickerProvid
   late AnimationController _controller;
   double _progress = 0.0;
   Timer? _progressTimer;
+  String _statusText = 'Analyzing Image Data...';
+  String _subStatusText = 'YOLO v8 Inference in Progress';
 
   @override
   void initState() {
@@ -33,8 +35,8 @@ class _AnalysisScreenState extends State<AnalysisScreen> with SingleTickerProvid
       if (mounted) {
         setState(() {
           _progress += 0.008;
-          if (_progress >= 0.98) {
-            _progress = 0.98;
+          if (_progress >= 0.70) {
+            _progress = 0.70;
             _progressTimer?.cancel();
           }
         });
@@ -43,7 +45,20 @@ class _AnalysisScreenState extends State<AnalysisScreen> with SingleTickerProvid
 
     final appState = context.read<AppState>();
     final path = widget.imagePath ?? "assets/images/img_1.png";
+    
+    // Step 1: Inference & Persistence
     await appState.runDetection(path);
+
+    if (mounted) {
+      setState(() {
+        _statusText = 'Syncing to Cloud...';
+        _subStatusText = 'Uploading report to Supabase';
+        _progress = 0.90;
+      });
+    }
+    
+    // Brief pause to simulate upload sync if it was too fast
+    await Future.delayed(const Duration(seconds: 1));
 
     if (mounted) {
       setState(() {
@@ -121,7 +136,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> with SingleTickerProvid
           physics: const NeverScrollableScrollPhysics(),
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 20),
           itemBuilder: (context, index) => Container(
-            decoration: BoxDecoration(border: Border.all(color: Colors.blue.withOpacity(0.1), width: 0.5)),
+            decoration: BoxDecoration(border: Border.all(color: Colors.blue.withValues(alpha: 0.1), width: 0.5)),
           ),
         ),
       ),
@@ -140,7 +155,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> with SingleTickerProvid
             height: 240,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(color: colorScheme.primary.withOpacity(0.1), width: 8),
+              border: Border.all(color: colorScheme.primary.withValues(alpha: 0.1), width: 8),
             ),
           ),
         ),
@@ -153,11 +168,11 @@ class _AnalysisScreenState extends State<AnalysisScreen> with SingleTickerProvid
               height: 180,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: colorScheme.primary.withOpacity(0.05 + (_controller.value * 0.05)),
-                border: Border.all(color: colorScheme.primary.withOpacity(0.3), width: 2),
+                color: colorScheme.primary.withValues(alpha: 0.05 + (_controller.value * 0.05)),
+                border: Border.all(color: colorScheme.primary.withValues(alpha: 0.3), width: 2),
                 boxShadow: [
                   BoxShadow(
-                    color: colorScheme.primary.withOpacity(0.2),
+                    color: colorScheme.primary.withValues(alpha: 0.2),
                     blurRadius: 30 * _controller.value,
                     spreadRadius: 5 * _controller.value,
                   ),
@@ -167,7 +182,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> with SingleTickerProvid
                 child: Icon(
                   Icons.psychology_rounded,
                   size: 80,
-                  color: colorScheme.primary.withOpacity(0.8),
+                  color: colorScheme.primary.withValues(alpha: 0.8),
                 ),
               ),
             );
@@ -191,7 +206,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> with SingleTickerProvid
         ),
         const SizedBox(height: 16),
         Text(
-          'Analyzing Image Data...',
+          _statusText,
           style: theme.textTheme.headlineSmall?.copyWith(
             color: Colors.white,
             fontWeight: FontWeight.bold,
@@ -199,9 +214,9 @@ class _AnalysisScreenState extends State<AnalysisScreen> with SingleTickerProvid
         ),
         const SizedBox(height: 8),
         Text(
-          'YOLO v8 Inference in Progress',
+          _subStatusText,
           style: TextStyle(
-            color: Colors.white.withOpacity(0.4),
+            color: Colors.white.withValues(alpha: 0.4),
             fontSize: 13,
             fontWeight: FontWeight.w500,
           ),
@@ -217,7 +232,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> with SingleTickerProvid
           height: 8,
           width: double.infinity,
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.05),
+            color: Colors.white.withValues(alpha: 0.05),
             borderRadius: BorderRadius.circular(4),
           ),
           child: FractionallySizedBox(
@@ -226,11 +241,11 @@ class _AnalysisScreenState extends State<AnalysisScreen> with SingleTickerProvid
             child: Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [colorScheme.primary.withOpacity(0.5), colorScheme.primary],
+                  colors: [colorScheme.primary.withValues(alpha: 0.5), colorScheme.primary],
                 ),
                 borderRadius: BorderRadius.circular(4),
                 boxShadow: [
-                  BoxShadow(color: colorScheme.primary.withOpacity(0.5), blurRadius: 10),
+                  BoxShadow(color: colorScheme.primary.withValues(alpha: 0.5), blurRadius: 10),
                 ],
               ),
             ),
@@ -257,9 +272,9 @@ class _AnalysisScreenState extends State<AnalysisScreen> with SingleTickerProvid
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.02),
+        color: Colors.white.withValues(alpha: 0.02),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -278,7 +293,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> with SingleTickerProvid
       child: Text(
         '> $text',
         style: TextStyle(
-          color: Colors.greenAccent.withOpacity(0.5),
+          color: Colors.greenAccent.withValues(alpha: 0.5),
           fontSize: 10,
           fontFamily: 'monospace',
           fontWeight: FontWeight.bold,
