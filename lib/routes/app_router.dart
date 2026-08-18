@@ -109,9 +109,17 @@ class AppRouter {
           builder: (context, state) {
             if (state.extra is Map<String, dynamic>) {
               final extra = state.extra as Map<String, dynamic>;
+              final rawBytes = extra['bytes'];
+              Uint8List? bytes;
+              if (rawBytes is Uint8List) {
+                bytes = rawBytes;
+              } else if (rawBytes is List) {
+                bytes = Uint8List.fromList(List<int>.from(rawBytes));
+              }
+              
               return AnalysisScreen(
                 imagePath: extra['path'] as String?,
-                imageBytes: extra['bytes'] as Uint8List?,
+                imageBytes: bytes,
               );
             }
             final imagePath = state.extra as String?;
