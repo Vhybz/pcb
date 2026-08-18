@@ -284,13 +284,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
               subtitle: 'Select a photo from your gallery',
               color: Colors.purple,
               onTap: () async {
-                context.pop();
                 final ImagePicker picker = ImagePicker();
                 try {
                   final XFile? image = await picker.pickImage(source: ImageSource.gallery);
-                  if (image != null && context.mounted) {
+                  if (image != null) {
                     final bytes = await image.readAsBytes();
-                    if (context.mounted) {
+                    // Close the modal sheet
+                    if (context.mounted) context.pop();
+                    
+                    // Navigate to analysis using the root context
+                    if (mounted) {
                       context.push('/analysis', extra: {
                         'path': image.path,
                         'bytes': bytes,
@@ -299,6 +302,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   }
                 } catch (e) {
                   debugPrint('Error picking image: $e');
+                  if (context.mounted) context.pop();
                 }
               },
             ),

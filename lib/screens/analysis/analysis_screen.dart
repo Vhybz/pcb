@@ -52,41 +52,35 @@ class _AnalysisScreenState extends State<AnalysisScreen> with SingleTickerProvid
     final path = widget.imagePath ?? "assets/images/img_1.png";
     
     try {
-      debugPrint('Analysis: Starting detection for $path');
+      debugPrint('Analysis: START PIPELINE for $path');
       // Step 1: Inference & Persistence
       await appState.runDetection(path, bytes: widget.imageBytes);
-      debugPrint('Analysis: Detection complete');
+      debugPrint('Analysis: PIPELINE SUCCESS');
 
       if (mounted) {
         setState(() {
-          _statusText = 'Finalizing Report...';
-          _subStatusText = 'Preparing results for display';
-          _progress = 0.95;
+          _statusText = 'Analysis Complete';
+          _subStatusText = 'Redirecting to results...';
+          _progress = 1.0;
         });
       }
     } catch (e) {
-      debugPrint('Analysis: Error during detection pipeline: $e');
+      debugPrint('Analysis: PIPELINE ERROR: $e');
       if (mounted) {
         setState(() {
           _statusText = 'Analysis Interrupted';
-          _subStatusText = 'Proceeding with cached data';
+          _subStatusText = 'An error occurred during processing';
+          _progress = 0.5; // Visual indication of failure
         });
       }
     }
     
-    // Brief pause for visual transition
-    await Future.delayed(const Duration(seconds: 1));
+    // Brief pause to show completion/error state
+    await Future.delayed(const Duration(seconds: 2));
 
     if (mounted) {
-      setState(() {
-        _progress = 1.0;
-      });
-      _progressTimer?.cancel();
-      // Brief pause to show 100% completion
-      await Future.delayed(const Duration(milliseconds: 500));
-      if (mounted) {
-        context.pushReplacement('/result');
-      }
+      debugPrint('Analysis: Navigating to /result');
+      context.pushReplacement('/result');
     }
   }
 
