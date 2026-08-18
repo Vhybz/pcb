@@ -14,6 +14,7 @@ import '../screens/history/history_screen.dart';
 import '../screens/settings/settings_screen.dart';
 import '../screens/about/about_screen.dart';
 import '../screens/profile/profile_screen.dart';
+import '../screens/notifications/notifications_screen.dart';
 import '../widgets/enhanced_bottom_nav.dart';
 
 class AppRouter {
@@ -96,6 +97,11 @@ class AppRouter {
           path: '/profile',
           parentNavigatorKey: _rootNavigatorKey,
           builder: (context, state) => const ProfileScreen(),
+        ),
+        GoRoute(
+          path: '/notifications',
+          parentNavigatorKey: _rootNavigatorKey,
+          builder: (context, state) => const NotificationsScreen(),
         ),
         GoRoute(
           path: '/scanner',

@@ -79,6 +79,14 @@ class SupabaseService {
     await _supabase.from('profiles').upsert(updates);
   }
 
+  Future<void> updateFcmToken(String token) async {
+    if (currentUser == null) return;
+    await _supabase.from('profiles').update({
+      'fcm_token': token,
+      'updated_at': DateTime.now().toIso8601String(),
+    }).eq('id', currentUser!.id);
+  }
+
   Future<String?> uploadAvatar(dynamic imageSource) async {
     if (currentUser == null) return null;
     

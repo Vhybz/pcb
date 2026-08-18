@@ -139,7 +139,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       children: [
         IconButton(
           icon: const Icon(Icons.notifications_outlined),
-          onPressed: () {},
+          onPressed: () => context.push('/notifications'),
         ),
         Positioned(
           right: 12,
