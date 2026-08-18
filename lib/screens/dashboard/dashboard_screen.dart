@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../core/constants/app_colors.dart';
 import '../../widgets/stat_card.dart';
 import '../../widgets/inspection_list_tile.dart';
@@ -240,7 +241,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        _buildActionItem(context, Icons.collections_bookmark_rounded, 'Gallery'),
+        _buildActionItem(
+          context,
+          Icons.collections_bookmark_rounded,
+          'Gallery',
+          onTap: () async {
+            final ImagePicker picker = ImagePicker();
+            try {
+              final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+              if (image != null && context.mounted) {
+                context.push('/analysis', extra: image.path);
+              }
+            } catch (e) {
+              debugPrint('Error picking image: $e');
+            }
+          },
+        ),
         _buildActionItem(context, Icons.analytics_rounded, 'Stats'),
         _buildActionItem(context, Icons.person_rounded, 'Account', onTap: () => context.push('/profile')),
         _buildActionItem(context, Icons.help_center_rounded, 'Help'),

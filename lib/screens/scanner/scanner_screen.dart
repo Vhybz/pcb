@@ -20,6 +20,7 @@ class ScannerScreen extends StatefulWidget {
 class _ScannerScreenState extends State<ScannerScreen> with TickerProviderStateMixin {
   CameraController? _controller;
   bool _isCameraInitialized = false;
+  int _selectedCameraIndex = 0;
   bool isFlashOn = false;
   double _currentZoom = 1.0;
   double _minZoom = 1.0;
@@ -49,13 +50,14 @@ class _ScannerScreenState extends State<ScannerScreen> with TickerProviderStateM
 
   Future<void> _initializeCamera() async {
     final status = await Permission.camera.request();
+    if (!mounted) return;
     if (status != PermissionStatus.granted) return;
 
     final cameras = context.read<AppState>().cameras;
     if (cameras.isEmpty) return;
 
     _controller = CameraController(
-      cameras[0],
+      cameras[_selectedCameraIndex],
       ResolutionPreset.medium,
       enableAudio: false,
       imageFormatGroup: kIsWeb ? ImageFormatGroup.jpeg : ImageFormatGroup.yuv420,
@@ -77,6 +79,24 @@ class _ScannerScreenState extends State<ScannerScreen> with TickerProviderStateM
     } catch (e) {
       debugPrint('Camera error: $e');
     }
+  }
+
+  Future<void> _switchCamera() async {
+    final cameras = context.read<AppState>().cameras;
+    if (cameras.length < 2) return;
+
+    _selectedCameraIndex = (_selectedCameraIndex + 1) % cameras.length;
+    
+    if (_controller != null) {
+      await _controller!.dispose();
+      setState(() {
+        _isCameraInitialized = false;
+        isFlashOn = false; // Reset flash state when switching cameras
+      });
+    }
+    
+    await _initializeCamera();
+    HapticFeedback.mediumImpact();
   }
 
   void _processCameraImage(CameraImage image) async {
@@ -128,6 +148,8 @@ class _ScannerScreenState extends State<ScannerScreen> with TickerProviderStateM
     if (_controller?.value.isStreamingImages ?? false) {
       await _controller?.stopImageStream();
     }
+
+    if (!mounted) return;
 
     if (_controller == null || !_isCameraInitialized) {
       context.push('/analysis');
@@ -256,6 +278,12 @@ class _ScannerScreenState extends State<ScannerScreen> with TickerProviderStateM
   }
 
   Widget _buildHUDOverlay() {
+    final cameras = context.read<AppState>().cameras;
+    String camValue = "UNKNOWN";
+    if (cameras.isNotEmpty && _selectedCameraIndex < cameras.length) {
+      camValue = cameras[_selectedCameraIndex].lensDirection.name.toUpperCase();
+    }
+
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 80),
@@ -264,6 +292,7 @@ class _ScannerScreenState extends State<ScannerScreen> with TickerProviderStateM
           children: [
             const _HUDLine(label: "STATUS", value: "REALTIME_ACTIVE", color: Colors.greenAccent),
             const _HUDLine(label: "AI_VER", value: "YOLO_V8_PCB", color: Colors.blueAccent),
+            _HUDLine(label: "CAMERA", value: camValue, color: Colors.blueAccent),
             Consumer<AppState>(
               builder: (context, appState, _) => _HUDLine(
                 label: "LIVE_FIND", 
@@ -432,7 +461,14 @@ class _ScannerScreenState extends State<ScannerScreen> with TickerProviderStateM
                 Text('REALTIME_ENGINE_ACTIVE', style: TextStyle(color: Colors.greenAccent, fontSize: 8, fontWeight: FontWeight.bold)),
               ],
             ),
-            _buildCircularButton(isFlashOn ? Icons.bolt_rounded : Icons.bolt_outlined, _toggleFlash, active: isFlashOn),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildCircularButton(Icons.flip_camera_ios_rounded, _switchCamera),
+                const SizedBox(width: 8),
+                _buildCircularButton(isFlashOn ? Icons.bolt_rounded : Icons.bolt_outlined, _toggleFlash, active: isFlashOn),
+              ],
+            ),
           ],
         ),
       ),

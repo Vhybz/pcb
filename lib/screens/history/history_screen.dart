@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../services/app_state.dart';
 import '../../widgets/inspection_list_tile.dart';
 
@@ -119,8 +120,24 @@ class _HistoryScreenState extends State<HistoryScreen> {
         ),
         const SizedBox(height: 8),
         Text(
-          'Complete a scan to see records here',
+          'Complete a scan or upload an image',
           style: theme.textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant),
+        ),
+        const SizedBox(height: 32),
+        FilledButton.icon(
+          onPressed: () async {
+            final ImagePicker picker = ImagePicker();
+            try {
+              final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+              if (image != null && context.mounted) {
+                context.push('/analysis', extra: image.path);
+              }
+            } catch (e) {
+              debugPrint('Error picking image: $e');
+            }
+          },
+          icon: const Icon(Icons.file_upload_outlined),
+          label: const Text('Upload PCB Image'),
         ),
       ],
     );

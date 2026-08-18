@@ -3,6 +3,7 @@ import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 import '../models/defect.dart';
 import 'detection_service.dart';
 
@@ -16,26 +17,23 @@ class HttpDetectionService implements DetectionService {
     try {
       var request = http.MultipartRequest('POST', Uri.parse('$apiUrl/detect'));
       
+      Uint8List bytes;
       if (imagePath.startsWith('assets/')) {
         final byteData = await rootBundle.load(imagePath);
-        final bytes = byteData.buffer.asUint8List();
-        request.files.add(http.MultipartFile.fromBytes(
-          'file', 
-          bytes,
-          filename: 'image.jpg',
-        ));
-      } else if (kIsWeb) {
-        final response = await http.get(Uri.parse(imagePath));
-        request.files.add(http.MultipartFile.fromBytes(
-          'file',
-          response.bodyBytes,
-          filename: 'upload.jpg',
-        ));
+        bytes = byteData.buffer.asUint8List();
       } else {
-        request.files.add(await http.MultipartFile.fromPath('file', imagePath));
+        // Use XFile to read bytes directly (works for blob URLs on web)
+        bytes = await XFile(imagePath).readAsBytes();
       }
+
+      request.files.add(http.MultipartFile.fromBytes(
+        'file', 
+        bytes,
+        filename: 'image.jpg',
+      ));
       
-      final streamedResponse = await request.send();
+      final streamedResponse = await request.send().timeout(const Duration(seconds: 40));
+      
       if (streamedResponse.statusCode == 200) {
         final response = await http.Response.fromStream(streamedResponse);
         final data = json.decode(response.body);
@@ -48,15 +46,17 @@ class HttpDetectionService implements DetectionService {
             className: d['class_name'],
             confidence: d['confidence'],
             severity: _mapSeverity(d['class_name'], d['confidence']),
-            location: 'Remote',
+            location: 'Remote AI',
             boundingBox: BoundingBox(
-              x: bbox[0],
-              y: bbox[1],
-              width: bbox[2],
-              height: bbox[3],
+              x: (bbox[0] as num).toDouble(),
+              y: (bbox[1] as num).toDouble(),
+              width: (bbox[2] as num).toDouble(),
+              height: (bbox[3] as num).toDouble(),
             ),
           );
         }).toList();
+      } else {
+        debugPrint('Server Error: ${streamedResponse.statusCode}');
       }
     } catch (e) {
       debugPrint('HTTP Detection Error: $e');

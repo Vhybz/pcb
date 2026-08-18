@@ -7,6 +7,7 @@ plugins {
 android {
     namespace = "com.example.pcb"
     compileSdk = 34
+    buildToolsVersion = "34.0.0"
     ndkVersion = "26.1.10909125"
 
     compileOptions {
@@ -14,8 +15,8 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    aaptOptions {
-        noCompress("tflite")
+    androidResources {
+        noCompress.add("tflite")
     }
 
     defaultConfig {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:typed_data';
 import 'package:camera/camera.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/inspection.dart';
@@ -85,9 +86,9 @@ class AppState extends ChangeNotifier {
     }
   }
 
-  Future<void> updateProfilePicture(dynamic imageFile) async {
+  Future<void> updateProfilePicture(Uint8List bytes) async {
     try {
-      final avatarUrl = await supabaseService.uploadAvatar(imageFile);
+      final avatarUrl = await supabaseService.uploadAvatar(bytes);
       if (avatarUrl != null) {
         await supabaseService.updateProfile(avatarUrl: avatarUrl);
         await fetchProfile();
@@ -158,12 +159,12 @@ class AppState extends ChangeNotifier {
     notifyListeners();
     
     try {
-      // 1. Local AI Inference
+      // 1. Local/Remote AI Inference
       final defects = await detectionService.detect(imagePath);
       
       // 2. Prepare Inspection Model
       final inspection = Inspection(
-        id: "TEMP", // Will be replaced by DB ID
+        id: "TEMP", 
         timestamp: DateTime.now(),
         status: defects.isEmpty ? InspectionStatus.pass : InspectionStatus.fail,
         defects: defects,
@@ -171,17 +172,33 @@ class AppState extends ChangeNotifier {
       );
 
       // 3. Upload and Save to Supabase (Persistence)
-      await supabaseService.saveInspection(inspection, imagePath);
+      try {
+        await supabaseService.saveInspection(inspection, imagePath);
+      } catch (e) {
+        debugPrint('Supabase Upload Failed: $e');
+        // We still return the inspection result even if upload fails
+      }
       
       // 4. Update local state
-      await fetchHistory(); // Refresh history from DB
+      await fetchHistory().catchError((e) => debugPrint('History refresh failed: $e')); 
+      
       if (_history.isNotEmpty) {
         _lastInspection = _history.first;
       } else {
-        _lastInspection = inspection; // Fallback to local if history fetch failed/empty
+        _lastInspection = inspection; 
       }
       
       return _lastInspection!;
+    } catch (e) {
+      debugPrint('Overall Detection Pipeline Error: $e');
+      // Return a dummy fail inspection if everything crashed
+      return Inspection(
+        id: "ERROR",
+        timestamp: DateTime.now(),
+        status: InspectionStatus.fail,
+        defects: [],
+        imageUrl: imagePath,
+      );
     } finally {
       _isAnalyzing = false;
       notifyListeners();

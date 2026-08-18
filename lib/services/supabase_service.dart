@@ -1,9 +1,9 @@
-import 'dart:io';
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:image_picker/image_picker.dart';
 import '../models/inspection.dart';
 
 class SupabaseService {
@@ -87,19 +87,13 @@ class SupabaseService {
     }).eq('id', currentUser!.id);
   }
 
-  Future<String?> uploadAvatar(dynamic imageSource) async {
+  Future<String?> uploadAvatar(Uint8List bytes) async {
     if (currentUser == null) return null;
     
     final fileName = '${currentUser!.id}_${DateTime.now().millisecondsSinceEpoch}.jpg';
     final path = 'avatars/$fileName';
 
-    if (kIsWeb) {
-      // On web, imageSource should be Uint8List
-      await _supabase.storage.from('avatars').uploadBinary(path, imageSource as Uint8List);
-    } else {
-      // On mobile, imageSource should be File
-      await _supabase.storage.from('avatars').upload(path, imageSource as File);
-    }
+    await _supabase.storage.from('avatars').uploadBinary(path, bytes);
 
     return _supabase.storage.from('avatars').getPublicUrl(path);
   }
@@ -114,11 +108,9 @@ class SupabaseService {
     if (imagePath.startsWith('assets/')) {
       final byteData = await rootBundle.load(imagePath);
       bytes = byteData.buffer.asUint8List();
-    } else if (kIsWeb) {
-      final response = await http.get(Uri.parse(imagePath));
-      bytes = response.bodyBytes;
     } else {
-      bytes = await File(imagePath).readAsBytes();
+      // XFile works on both Web and Mobile/Desktop
+      bytes = await XFile(imagePath).readAsBytes();
     }
 
     // 2. Upload Image

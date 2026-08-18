@@ -273,7 +273,7 @@ class _BoundingBoxWidget extends StatelessWidget {
   final Defect defect;
   final ColorScheme colorScheme;
 
-  const _BoundingBoxWidget({required this.defect, required this.colorScheme, super.key});
+  const _BoundingBoxWidget({required this.defect, required this.colorScheme});
 
   @override
   Widget build(BuildContext context) {

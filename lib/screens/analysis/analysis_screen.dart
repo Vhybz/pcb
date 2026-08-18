@@ -134,6 +134,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> with SingleTickerProvid
         ),
         child: GridView.builder(
           physics: const NeverScrollableScrollPhysics(),
+          itemCount: 100, // Bound the items to prevent infinite layout
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 20),
           itemBuilder: (context, index) => Container(
             decoration: BoxDecoration(border: Border.all(color: Colors.blue.withValues(alpha: 0.1), width: 0.5)),

@@ -1,18 +1,26 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'supabase_service.dart';
 
 class NotificationService {
-  final FirebaseMessaging _fcm = FirebaseMessaging.instance;
+  FirebaseMessaging get _fcm => FirebaseMessaging.instance;
   final SupabaseService _supabase = SupabaseService();
 
   Future<void> initialize() async {
-    // 1. Request permissions (crucial for iOS and Android 13+)
-    NotificationSettings settings = await _fcm.requestPermission(
-      alert: true,
-      badge: true,
-      sound: true,
-    );
+    try {
+      // Check if Firebase is actually initialized
+      if (Firebase.apps.isEmpty) {
+        debugPrint('Firebase not initialized. Skipping notification setup.');
+        return;
+      }
+
+      // 1. Request permissions (crucial for iOS and Android 13+)
+      NotificationSettings settings = await _fcm.requestPermission(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
 
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {
       debugPrint('Notification permissions granted');
@@ -46,7 +54,10 @@ class NotificationService {
     } else {
       debugPrint('Notification permissions denied');
     }
+  } catch (e) {
+    debugPrint('Firebase Messaging initialization failed: $e');
   }
+}
 
   Future<void> _saveToken(String token) async {
     debugPrint('FCM Token: $token');
