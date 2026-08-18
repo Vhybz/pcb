@@ -140,7 +140,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
       children: [
         IconButton(
           icon: const Icon(Icons.notifications_outlined),
-          onPressed: () => context.push('/notifications'),
+          onPressed: () {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Notifications coming soon via Supabase!')),
+            );
+          },
         ),
         Positioned(
           right: 12,

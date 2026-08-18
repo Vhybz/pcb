@@ -6,12 +6,10 @@ import '../models/inspection.dart';
 import '../models/defect.dart';
 import 'detection_service.dart';
 import 'supabase_service.dart';
-import 'notification_service.dart';
 
 class AppState extends ChangeNotifier {
   final DetectionService detectionService;
   final SupabaseService supabaseService = SupabaseService();
-  final NotificationService notificationService = NotificationService();
   List<CameraDescription> _cameras = [];
   
   List<Inspection> _history = [];
@@ -35,7 +33,6 @@ class AppState extends ChangeNotifier {
     if (_currentUser != null) {
       fetchProfile();
       fetchHistory();
-      notificationService.initialize();
     }
     
     supabaseService.onAuthStateChange((event, session) {
@@ -43,7 +40,6 @@ class AppState extends ChangeNotifier {
       if (event == AuthChangeEvent.signedIn) {
         fetchProfile();
         fetchHistory();
-        notificationService.initialize();
       } else if (event == AuthChangeEvent.signedOut) {
         _userProfile = null;
         _history = [];
