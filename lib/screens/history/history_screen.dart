@@ -129,7 +129,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
             final ImagePicker picker = ImagePicker();
             try {
               final XFile? image = await picker.pickImage(source: ImageSource.gallery);
-              if (image != null && context.mounted) {
+              if (image != null) {
+                if (!mounted) return;
                 context.push('/analysis', extra: image.path);
               }
             } catch (e) {
