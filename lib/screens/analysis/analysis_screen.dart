@@ -29,7 +29,10 @@ class _AnalysisScreenState extends State<AnalysisScreen> with SingleTickerProvid
       duration: const Duration(seconds: 2),
     )..repeat();
 
-    _startAnalysis();
+    // Start analysis after the first frame to avoid "setState during build" errors
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _startAnalysis();
+    });
   }
 
   Future<void> _startAnalysis() async {
