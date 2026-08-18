@@ -1,0 +1,6 @@
+- [x] Update `Defect` model in `lib/models/defect.dart`
+- [x] Create `MockDetectionService` in `lib/services/mock_detection_service.dart`
+- [x] Update `AppState` in `lib/services/app_state.dart` to use `DetectionService`
+- [x] Update `main.dart` to inject `MockDetectionService`
+- [x] Update `AnalysisScreen` in `lib/screens/analysis/analysis_screen.dart` to trigger detection
+- [x] Verify implementation with a unit test
