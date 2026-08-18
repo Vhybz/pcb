@@ -143,7 +143,7 @@ class OnboardingPage extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(32),
             decoration: BoxDecoration(
-              color: colorScheme.primaryContainer.withValues(alpha: 0.2),
+              color: colorScheme.primaryContainer.withOpacity(0.2),
               borderRadius: BorderRadius.circular(40),
             ),
             child: Icon(

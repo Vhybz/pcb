@@ -21,7 +21,7 @@ class DefectListTile extends StatelessWidget {
       decoration: BoxDecoration(
         color: colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.08)),
+        border: Border.all(color: colorScheme.outline.withOpacity(0.08)),
       ),
       child: Material(
         color: Colors.transparent,
@@ -33,7 +33,7 @@ class DefectListTile extends StatelessWidget {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: colorScheme.errorContainer.withValues(alpha: 0.4),
+              color: colorScheme.errorContainer.withOpacity(0.4),
               borderRadius: BorderRadius.circular(14),
             ),
             child: Icon(
@@ -55,7 +55,7 @@ class DefectListTile extends StatelessWidget {
               const SizedBox(height: 4),
               Row(
                 children: [
-                  Icon(Icons.gps_fixed_rounded, size: 14, color: colorScheme.primary.withValues(alpha: 0.7)),
+                  Icon(Icons.gps_fixed_rounded, size: 14, color: colorScheme.primary.withOpacity(0.7)),
                   const SizedBox(width: 6),
                   Text(
                     defect.location,
@@ -67,7 +67,7 @@ class DefectListTile extends StatelessWidget {
               Text(
                 'Confidence: ${(defect.confidence * 100).toStringAsFixed(1)}%',
                 style: theme.textTheme.labelSmall?.copyWith(
-                  color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
+                  color: colorScheme.onSurfaceVariant.withOpacity(0.7),
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -76,7 +76,7 @@ class DefectListTile extends StatelessWidget {
           trailing: Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+              color: colorScheme.surfaceContainerHighest.withOpacity(0.5),
               shape: BoxShape.circle,
             ),
             child: Icon(

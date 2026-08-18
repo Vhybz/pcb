@@ -87,7 +87,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       decoration: BoxDecoration(
         color: colorScheme.surface,
         borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.1)),
+        border: Border.all(color: colorScheme.outline.withOpacity(0.1)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -107,9 +107,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
             data: SliderThemeData(
               trackHeight: 6,
               activeTrackColor: colorScheme.primary,
-              inactiveTrackColor: colorScheme.primary.withValues(alpha: 0.1),
+              inactiveTrackColor: colorScheme.primary.withOpacity(0.1),
               thumbColor: Colors.white,
-              overlayColor: colorScheme.primary.withValues(alpha: 0.1),
+              overlayColor: colorScheme.primary.withOpacity(0.1),
               thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 10),
             ),
             child: Slider(
@@ -133,7 +133,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           fontWeight: FontWeight.w900, 
           fontSize: 11, 
           letterSpacing: 1.5,
-          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
         ),
       ),
     );
@@ -145,7 +145,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       decoration: BoxDecoration(
         color: colorScheme.surface,
         borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.1)),
+        border: Border.all(color: colorScheme.outline.withOpacity(0.1)),
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(children: children),
@@ -157,7 +157,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return SwitchListTile(
       secondary: Container(
         padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(color: colorScheme.primary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
+        decoration: BoxDecoration(color: colorScheme.primary.withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
         child: Icon(icon, color: colorScheme.primary, size: 20),
       ),
       title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
@@ -184,9 +184,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: colorScheme.error.withValues(alpha: 0.05),
+        color: colorScheme.error.withOpacity(0.05),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: colorScheme.error.withValues(alpha: 0.1)),
+        border: Border.all(color: colorScheme.error.withOpacity(0.1)),
       ),
       child: Material(
         color: Colors.transparent,

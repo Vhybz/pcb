@@ -14,7 +14,7 @@ class ResultScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final appState = context.read<AppState>();
+    final appState = context.watch<AppState>();
     final inspection = appState.lastInspection ?? (appState.history.isNotEmpty ? appState.history.first : null);
     
     if (inspection == null) {
@@ -61,7 +61,7 @@ class ResultScreen extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: Colors.black,
                         borderRadius: BorderRadius.circular(32),
-                        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.1)),
+                        border: Border.all(color: colorScheme.outline.withOpacity(0.1)),
                       ),
                       clipBehavior: Clip.antiAlias,
                       child: Stack(
@@ -71,12 +71,11 @@ class ResultScreen extends StatelessWidget {
                           // Actual Bounding Boxes
                           if (inspection.defects.isNotEmpty)
                             ...inspection.defects.map((defect) {
-                              // These coordinates need to be scaled if the image is scaled
-                              // For simplicity, we assume the detector returns normalized or mapped coords
-                              // Let's use a CustomPaint for better scaling or use Positioned with Image scale
-                              return _BoundingBoxWidget(
-                                defect: defect,
-                                colorScheme: colorScheme,
+                              return Positioned.fill(
+                                child: _BoundingBoxWidget(
+                                  defect: defect,
+                                  colorScheme: colorScheme,
+                                ),
                               );
                             }),
                           
@@ -112,7 +111,7 @@ class ResultScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(28),
                     boxShadow: [
                       BoxShadow(
-                        color: (isPassed ? AppColors.success : AppColors.error).withValues(alpha: 0.1),
+                        color: (isPassed ? AppColors.success : AppColors.error).withOpacity(0.1),
                         blurRadius: 20,
                         offset: const Offset(0, 10),
                       ),
@@ -139,7 +138,7 @@ class ResultScreen extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w900,
-                                color: (isPassed ? AppColors.success : AppColors.error).withValues(alpha: 0.6),
+                                color: (isPassed ? AppColors.success : AppColors.error).withOpacity(0.6),
                                 letterSpacing: 1.5,
                               ),
                             ),
@@ -194,7 +193,7 @@ class ResultScreen extends StatelessWidget {
                         style: OutlinedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 18),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                          side: BorderSide(color: colorScheme.outline.withValues(alpha: 0.2)),
+                          side: BorderSide(color: colorScheme.outline.withOpacity(0.2)),
                         ),
                       ),
                     ),
@@ -277,46 +276,43 @@ class _BoundingBoxWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // We need the actual rendered size of the image to scale correctly.
-    // BoxFit.contain makes this a bit tricky.
-    // For a real-world app, we'd use a CustomPainter or a more precise layout.
-    // For now, let's assume the image takes the full 300 height and scales width accordingly.
-    
     return LayoutBuilder(
       builder: (context, constraints) {
-        // Simple scaling assuming BoxFit.contain and 300 height
-        const double displayHeight = 300;
+        final double displayHeight = constraints.maxHeight;
         final double displayWidth = constraints.maxWidth;
         
-        // This is a simplification. In a real app, you'd calculate the actual image aspect ratio.
         final double left = defect.boundingBox.x * displayWidth;
         final double top = defect.boundingBox.y * displayHeight;
         final double width = defect.boundingBox.width * displayWidth;
         final double height = defect.boundingBox.height * displayHeight;
 
-        return Positioned(
-          left: left,
-          top: top,
-          child: Container(
-            width: width,
-            height: height,
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.red, width: 2),
-              borderRadius: BorderRadius.circular(4),
-              color: Colors.red.withValues(alpha: 0.1),
-            ),
-            child: Align(
-              alignment: Alignment.topLeft,
+        return Stack(
+          children: [
+            Positioned(
+              left: left,
+              top: top,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                color: Colors.red,
-                child: Text(
-                  defect.className.toUpperCase(),
-                  style: const TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold),
+                width: width,
+                height: height,
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.red, width: 2),
+                  borderRadius: BorderRadius.circular(4),
+                  color: Colors.red.withOpacity(0.1),
+                ),
+                child: Align(
+                  alignment: Alignment.topLeft,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                    color: Colors.red,
+                    child: Text(
+                      defect.className.toUpperCase(),
+                      style: const TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold),
+                    ),
+                  ),
                 ),
               ),
             ),
-          ),
+          ],
         );
       }
     );

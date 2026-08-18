@@ -123,7 +123,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         padding: const EdgeInsets.all(2),
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          border: Border.all(color: colorScheme.primary.withValues(alpha: 0.2), width: 1.5),
+          border: Border.all(color: colorScheme.primary.withOpacity(0.2), width: 1.5),
         ),
         child: CircleAvatar(
           radius: 18,
@@ -165,14 +165,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
       width: double.infinity,
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [colorScheme.primary, colorScheme.primary.withValues(alpha: 0.8)],
+          colors: [colorScheme.primary, colorScheme.primary.withOpacity(0.8)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(32),
         boxShadow: [
           BoxShadow(
-            color: colorScheme.primary.withValues(alpha: 0.2),
+            color: colorScheme.primary.withOpacity(0.2),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -200,7 +200,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               children: [
                 Text(
                   'READY TO SCAN',
-                  style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 2),
+                  style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 2),
                 ),
                 const SizedBox(height: 12),
                 Text(
@@ -322,7 +322,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          border: Border.all(color: colorScheme.outline.withValues(alpha: 0.1)),
+          border: Border.all(color: colorScheme.outline.withOpacity(0.1)),
           borderRadius: BorderRadius.circular(24),
         ),
         child: Row(
@@ -330,7 +330,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.1),
+                color: color.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Icon(icon, color: color, size: 28),
@@ -363,7 +363,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       title,
       style: theme.textTheme.titleSmall?.copyWith(
         fontWeight: FontWeight.w800,
-        color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
+        color: theme.colorScheme.onSurface.withOpacity(0.8),
         letterSpacing: 0.5,
       ),
     );
@@ -411,9 +411,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+              color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: colorScheme.outline.withValues(alpha: 0.05)),
+              border: Border.all(color: colorScheme.outline.withOpacity(0.05)),
             ),
             child: Icon(icon, color: colorScheme.primary, size: 24),
           ),
@@ -458,7 +458,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       decoration: BoxDecoration(
         color: colorScheme.surface,
         borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.1)),
+        border: Border.all(color: colorScheme.outline.withOpacity(0.1)),
       ),
       child: Column(
         children: [
@@ -469,7 +469,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: AppColors.successContainer.withValues(alpha: 0.5),
+                  color: AppColors.successContainer.withOpacity(0.5),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Text(
@@ -489,7 +489,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 width: 20,
                 height: heights[index],
                 decoration: BoxDecoration(
-                  color: index == 6 ? colorScheme.primary : colorScheme.primary.withValues(alpha: 0.15),
+                  color: index == 6 ? colorScheme.primary : colorScheme.primary.withOpacity(0.15),
                   borderRadius: BorderRadius.circular(6),
                 ),
               );

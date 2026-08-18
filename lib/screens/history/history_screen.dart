@@ -97,7 +97,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
       onSelected: (val) => setState(() => selectedFilter = label),
       showCheckmark: false,
       selectedColor: colorScheme.primary,
-      backgroundColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+      backgroundColor: colorScheme.surfaceContainerHighest.withOpacity(0.3),
       labelStyle: TextStyle(
         fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
         color: isSelected ? colorScheme.onPrimary : colorScheme.onSurfaceVariant,
@@ -112,7 +112,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Icon(Icons.inventory_2_outlined, size: 64, color: colorScheme.primary.withValues(alpha: 0.2)),
+        Icon(Icons.inventory_2_outlined, size: 64, color: colorScheme.primary.withOpacity(0.2)),
         const SizedBox(height: 24),
         Text(
           'No Inspections Yet',

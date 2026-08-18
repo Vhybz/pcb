@@ -257,7 +257,7 @@ class _ScannerScreenState extends State<ScannerScreen> with TickerProviderStateM
                 child: LinearProgressIndicator(backgroundColor: Colors.white10, color: Colors.blueAccent),
               ),
               const SizedBox(height: 20),
-              Text('BOOTING SENSORS...', style: TextStyle(color: Colors.blue.withValues(alpha: 0.5), fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 2)),
+              Text('BOOTING SENSORS...', style: TextStyle(color: Colors.blue.withOpacity(0.5), fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 2)),
             ],
           ),
         ),
@@ -337,7 +337,7 @@ class _ScannerScreenState extends State<ScannerScreen> with TickerProviderStateM
                   child: Container(
                     height: 1.5,
                     decoration: BoxDecoration(
-                      boxShadow: [BoxShadow(color: Colors.blueAccent.withValues(alpha: 0.5), blurRadius: 10, spreadRadius: 1)],
+                      boxShadow: [BoxShadow(color: Colors.blueAccent.withOpacity(0.5), blurRadius: 10, spreadRadius: 1)],
                       color: Colors.blueAccent,
                     ),
                   ),
@@ -355,9 +355,9 @@ class _ScannerScreenState extends State<ScannerScreen> with TickerProviderStateM
       width: width,
       height: height,
       decoration: BoxDecoration(
-        color: Colors.black.withValues(alpha: 0.1),
+        color: Colors.black.withOpacity(0.1),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.1), width: 0.5),
+        border: Border.all(color: Colors.white.withOpacity(0.1), width: 0.5),
       ),
       child: Stack(
         children: [
@@ -373,7 +373,7 @@ class _ScannerScreenState extends State<ScannerScreen> with TickerProviderStateM
                 height: 48,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  border: Border.all(color: Colors.blueAccent.withValues(alpha: 0.4), width: 1),
+                  border: Border.all(color: Colors.blueAccent.withOpacity(0.4), width: 1),
                 ),
                 child: const Icon(Icons.add, color: Colors.blueAccent, size: 24),
               ),
@@ -438,7 +438,7 @@ class _ScannerScreenState extends State<ScannerScreen> with TickerProviderStateM
                 activeTrackColor: Colors.blueAccent,
                 inactiveTrackColor: Colors.white24,
                 thumbColor: Colors.white,
-                overlayColor: Colors.blueAccent.withValues(alpha: 0.2),
+                overlayColor: Colors.blueAccent.withOpacity(0.2),
                 thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
               ),
               child: Slider(
@@ -518,7 +518,7 @@ class _ScannerScreenState extends State<ScannerScreen> with TickerProviderStateM
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: active ? Colors.blueAccent.withValues(alpha: 0.4) : Colors.black38,
+          color: active ? Colors.blueAccent.withOpacity(0.4) : Colors.black38,
           shape: BoxShape.circle,
           border: Border.all(color: Colors.white10),
         ),
@@ -572,7 +572,7 @@ class _HUDLine extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text("$label:", style: TextStyle(color: color.withValues(alpha: 0.5), fontSize: 9, fontWeight: FontWeight.bold, fontFamily: 'monospace')),
+          Text("$label:", style: TextStyle(color: color.withOpacity(0.5), fontSize: 9, fontWeight: FontWeight.bold, fontFamily: 'monospace')),
           const SizedBox(width: 8),
           Text(value, style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.bold, fontFamily: 'monospace')),
         ],
@@ -587,7 +587,7 @@ class TechnicalGridPainter extends CustomPainter {
     if (size.width.isInfinite || size.height.isInfinite) return;
 
     final paint = Paint()
-      ..color = Colors.blueAccent.withValues(alpha: 0.3)
+      ..color = Colors.blueAccent.withOpacity(0.3)
       ..strokeWidth = 0.5;
 
     const spacing = 40.0;

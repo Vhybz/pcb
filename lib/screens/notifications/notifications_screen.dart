@@ -20,7 +20,7 @@ class NotificationsScreen extends StatelessWidget {
             Icon(
               Icons.notifications_none_rounded,
               size: 80,
-              color: colorScheme.outline.withValues(alpha: 0.5),
+              color: colorScheme.outline.withOpacity(0.5),
             ),
             const SizedBox(height: 24),
             Text(
@@ -35,7 +35,7 @@ class NotificationsScreen extends StatelessWidget {
               'Real-time defect alerts will appear here.',
               textAlign: TextAlign.center,
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: colorScheme.outline.withValues(alpha: 0.7),
+                color: colorScheme.outline.withOpacity(0.7),
               ),
             ),
           ],

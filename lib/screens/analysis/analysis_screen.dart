@@ -130,13 +130,6 @@ class _AnalysisScreenState extends State<AnalysisScreen> with SingleTickerProvid
         child: Container(
           width: double.infinity,
           height: double.infinity,
-          decoration: BoxDecoration(
-            image: DecorationImage(
-              image: const AssetImage('assets/images/circuit_pattern.png'),
-              repeat: ImageRepeat.repeat,
-              onError: (e, s) {},
-            ),
-          ),
           child: CustomPaint(
             painter: _TechnicalGridPainter(),
           ),
@@ -157,7 +150,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> with SingleTickerProvid
             height: 240,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(color: colorScheme.primary.withValues(alpha: 0.1), width: 8),
+              border: Border.all(color: colorScheme.primary.withOpacity(0.1), width: 8),
             ),
           ),
         ),
@@ -170,11 +163,11 @@ class _AnalysisScreenState extends State<AnalysisScreen> with SingleTickerProvid
               height: 180,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: colorScheme.primary.withValues(alpha: 0.05 + (_controller.value * 0.05)),
-                border: Border.all(color: colorScheme.primary.withValues(alpha: 0.3), width: 2),
+                color: colorScheme.primary.withOpacity(0.05 + (_controller.value * 0.05)),
+                border: Border.all(color: colorScheme.primary.withOpacity(0.3), width: 2),
                 boxShadow: [
                   BoxShadow(
-                    color: colorScheme.primary.withValues(alpha: 0.2),
+                    color: colorScheme.primary.withOpacity(0.2),
                     blurRadius: 30 * _controller.value,
                     spreadRadius: 5 * _controller.value,
                   ),
@@ -184,7 +177,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> with SingleTickerProvid
                 child: Icon(
                   Icons.psychology_rounded,
                   size: 80,
-                  color: colorScheme.primary.withValues(alpha: 0.8),
+                  color: colorScheme.primary.withOpacity(0.8),
                 ),
               ),
             );
@@ -218,7 +211,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> with SingleTickerProvid
         Text(
           _subStatusText,
           style: TextStyle(
-            color: Colors.white.withValues(alpha: 0.4),
+            color: Colors.white.withOpacity(0.4),
             fontSize: 13,
             fontWeight: FontWeight.w500,
           ),
@@ -234,7 +227,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> with SingleTickerProvid
           height: 8,
           width: double.infinity,
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.05),
+            color: Colors.white.withOpacity(0.05),
             borderRadius: BorderRadius.circular(4),
           ),
           child: FractionallySizedBox(
@@ -243,11 +236,11 @@ class _AnalysisScreenState extends State<AnalysisScreen> with SingleTickerProvid
             child: Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [colorScheme.primary.withValues(alpha: 0.5), colorScheme.primary],
+                  colors: [colorScheme.primary.withOpacity(0.5), colorScheme.primary],
                 ),
                 borderRadius: BorderRadius.circular(4),
                 boxShadow: [
-                  BoxShadow(color: colorScheme.primary.withValues(alpha: 0.5), blurRadius: 10),
+                  BoxShadow(color: colorScheme.primary.withOpacity(0.5), blurRadius: 10),
                 ],
               ),
             ),
@@ -274,9 +267,9 @@ class _AnalysisScreenState extends State<AnalysisScreen> with SingleTickerProvid
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.02),
+        color: Colors.white.withOpacity(0.02),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+        border: Border.all(color: Colors.white.withOpacity(0.05)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -295,7 +288,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> with SingleTickerProvid
       child: Text(
         '> $text',
         style: TextStyle(
-          color: Colors.greenAccent.withValues(alpha: 0.5),
+          color: Colors.greenAccent.withOpacity(0.5),
           fontSize: 10,
           fontFamily: 'monospace',
           fontWeight: FontWeight.bold,
@@ -311,7 +304,7 @@ class _TechnicalGridPainter extends CustomPainter {
     if (size.width.isInfinite || size.height.isInfinite) return;
 
     final paint = Paint()
-      ..color = Colors.blue.withValues(alpha: 0.1)
+      ..color = Colors.blue.withOpacity(0.1)
       ..strokeWidth = 0.5;
 
     const spacing = 40.0;

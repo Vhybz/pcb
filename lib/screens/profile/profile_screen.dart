@@ -96,9 +96,9 @@ class ProfileScreen extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(32),
       decoration: BoxDecoration(
-        color: colorScheme.primaryContainer.withValues(alpha: 0.3),
+        color: colorScheme.primaryContainer.withOpacity(0.3),
         borderRadius: BorderRadius.circular(32),
-        border: Border.all(color: colorScheme.primary.withValues(alpha: 0.1)),
+        border: Border.all(color: colorScheme.primary.withOpacity(0.1)),
       ),
       child: Column(
         children: [
@@ -177,7 +177,7 @@ class ProfileScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: colorScheme.surface,
         borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.1)),
+        border: Border.all(color: colorScheme.outline.withOpacity(0.1)),
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(children: children),
@@ -211,7 +211,7 @@ class ProfileScreen extends StatelessWidget {
         decoration: BoxDecoration(
           color: colorScheme.surface,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: colorScheme.outline.withValues(alpha: 0.1)),
+          border: Border.all(color: colorScheme.outline.withOpacity(0.1)),
         ),
         child: Column(
           children: [
@@ -228,12 +228,12 @@ class ProfileScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: colorScheme.surface,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.1)),
+        border: Border.all(color: colorScheme.outline.withOpacity(0.1)),
       ),
       child: ListTile(
         leading: Container(
           padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(color: colorScheme.primary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
+          decoration: BoxDecoration(color: colorScheme.primary.withOpacity(0.1), borderRadius: BorderRadius.circular(12)),
           child: Icon(icon, color: colorScheme.primary, size: 22),
         ),
         title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
@@ -247,9 +247,9 @@ class ProfileScreen extends StatelessWidget {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: colorScheme.error.withValues(alpha: 0.05),
+        color: colorScheme.error.withOpacity(0.05),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: colorScheme.error.withValues(alpha: 0.1)),
+        border: Border.all(color: colorScheme.error.withOpacity(0.1)),
       ),
       child: Material(
         color: Colors.transparent,

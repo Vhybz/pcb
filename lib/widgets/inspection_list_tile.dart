@@ -26,7 +26,7 @@ class InspectionListTile extends StatelessWidget {
       decoration: BoxDecoration(
         color: colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.08)),
+        border: Border.all(color: colorScheme.outline.withOpacity(0.08)),
       ),
       child: Material(
         color: Colors.transparent,
@@ -42,7 +42,7 @@ class InspectionListTile extends StatelessWidget {
                   width: 52,
                   height: 52,
                   decoration: BoxDecoration(
-                    color: statusBgColor.withValues(alpha: 0.3),
+                    color: statusBgColor.withOpacity(0.3),
                     shape: BoxShape.circle,
                   ),
                   child: Center(
@@ -69,7 +69,7 @@ class InspectionListTile extends StatelessWidget {
                       const SizedBox(height: 4),
                       Row(
                         children: [
-                          Icon(Icons.access_time_rounded, size: 12, color: colorScheme.onSurfaceVariant.withValues(alpha: 0.6)),
+                          Icon(Icons.access_time_rounded, size: 12, color: colorScheme.onSurfaceVariant.withOpacity(0.6)),
                           const SizedBox(width: 4),
                           Text(
                             DateFormat('MMM dd • HH:mm').format(inspection.timestamp),
@@ -116,7 +116,7 @@ class InspectionListTile extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(width: 4),
-                Icon(Icons.chevron_right_rounded, color: colorScheme.outline.withValues(alpha: 0.5), size: 20),
+                Icon(Icons.chevron_right_rounded, color: colorScheme.outline.withOpacity(0.5), size: 20),
               ],
             ),
           ),

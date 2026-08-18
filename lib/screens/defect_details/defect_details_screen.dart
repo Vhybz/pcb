@@ -41,7 +41,7 @@ class DefectDetailsScreen extends StatelessWidget {
                       child: Icon(
                         Icons.memory_rounded, 
                         size: 180, 
-                        color: colorScheme.error.withValues(alpha: 0.05),
+                        color: colorScheme.error.withOpacity(0.05),
                       ),
                     ),
                   ),
@@ -54,7 +54,7 @@ class DefectDetailsScreen extends StatelessWidget {
                         border: Border.all(color: colorScheme.error, width: 3),
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: [
-                          BoxShadow(color: colorScheme.error.withValues(alpha: 0.3), blurRadius: 40, spreadRadius: 5)
+                          BoxShadow(color: colorScheme.error.withOpacity(0.3), blurRadius: 40, spreadRadius: 5)
                         ],
                       ),
                     ),
@@ -112,7 +112,7 @@ class DefectDetailsScreen extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                        color: colorScheme.surfaceContainerHighest.withOpacity(0.5),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(Icons.warning_amber_rounded, color: colorScheme.error, size: 32),
@@ -123,7 +123,7 @@ class DefectDetailsScreen extends StatelessWidget {
                 Text(
                   'A critical hardware failure detected where a required SMD component is absent from the specified coordinates. This results in an open circuit condition.',
                   style: theme.textTheme.bodyLarge?.copyWith(
-                    color: colorScheme.onSurface.withValues(alpha: 0.7),
+                    color: colorScheme.onSurface.withOpacity(0.7),
                     height: 1.6,
                   ),
                 ),
@@ -189,7 +189,7 @@ class DefectDetailsScreen extends StatelessWidget {
         decoration: BoxDecoration(
           color: colorScheme.surface,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: colorScheme.outline.withValues(alpha: 0.1)),
+          border: Border.all(color: colorScheme.outline.withOpacity(0.1)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -215,9 +215,9 @@ class DefectDetailsScreen extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+        color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
         borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: colorScheme.primary.withValues(alpha: 0.1)),
+        border: Border.all(color: colorScheme.primary.withOpacity(0.1)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
