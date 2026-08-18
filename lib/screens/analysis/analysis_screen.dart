@@ -48,18 +48,30 @@ class _AnalysisScreenState extends State<AnalysisScreen> with SingleTickerProvid
     final appState = context.read<AppState>();
     final path = widget.imagePath ?? "assets/images/img_1.png";
     
-    // Step 1: Inference & Persistence
-    await appState.runDetection(path, bytes: widget.imageBytes);
+    try {
+      debugPrint('Analysis: Starting detection for $path');
+      // Step 1: Inference & Persistence
+      await appState.runDetection(path, bytes: widget.imageBytes);
+      debugPrint('Analysis: Detection complete');
 
-    if (mounted) {
-      setState(() {
-        _statusText = 'Syncing to Cloud...';
-        _subStatusText = 'Uploading report to Supabase';
-        _progress = 0.90;
-      });
+      if (mounted) {
+        setState(() {
+          _statusText = 'Finalizing Report...';
+          _subStatusText = 'Preparing results for display';
+          _progress = 0.95;
+        });
+      }
+    } catch (e) {
+      debugPrint('Analysis: Error during detection pipeline: $e');
+      if (mounted) {
+        setState(() {
+          _statusText = 'Analysis Interrupted';
+          _subStatusText = 'Proceeding with cached data';
+        });
+      }
     }
     
-    // Brief pause to simulate upload sync if it was too fast
+    // Brief pause for visual transition
     await Future.delayed(const Duration(seconds: 1));
 
     if (mounted) {
